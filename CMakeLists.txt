@@ -6,6 +6,12 @@ include (cmake/FindMicroHttpd.cmake)
 
 SET(EXEC_NAME ${PROJECT_NAME})
 
+SET(
+    MODULES
+    router
+    tools
+)
+
 FILE(
     GLOB
     base_sources
@@ -19,17 +25,44 @@ FILE(
     )
 
 FILE(
-    GLOB_RECURSE
+    GLOB
     web_sources
     src/web/*.c
     )
 
 FILE(
-    GLOB_RECURSE
+    GLOB
     web_headers
     src/web/*.h
     )
 
+# Ajout des modules web
+FOREACH(MODULE ${MODULES})
+    # Recherche des fichiers pour le module
+    FILE(
+        GLOB_RECURSE
+        ${MODULE}_sources
+        src/engine/*.c
+    )
+
+    FILE(
+        GLOB_RECURSE
+        ${MODULE}_headers
+        src/engine/*.h
+    )
+
+    SET(
+        modules_sources
+        ${modules_sources}
+        ${${MODULE}_sources}
+    )
+
+    SET(
+        modules_headers
+        ${modules_headers}
+        ${${MODULE}_headers}
+    )
+ENDFOREACH(MODULE)
 
 
 SET( ALL_SRC
@@ -37,6 +70,8 @@ SET( ALL_SRC
     ${base_headers}
     ${web_sources}
     ${web_headers}
+    ${modules_sources}
+    ${modules_headers}
     )
 
 

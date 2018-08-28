@@ -1,6 +1,8 @@
 #ifndef WEBSERVER_H_INCLUDED
 #define WEBSERVER_H_INCLUDED
 
+#include "engine/router/router.h"
+
 int handleConnection(void* cls,
                     struct MHD_Connection* connection,
                     const char* url,
@@ -12,7 +14,7 @@ int handleConnection(void* cls,
 int print_out_key (void *cls, enum MHD_ValueKind kind, 
                    const char *key, const char *value);
 
-int runWevServer();
+int runWevServer(struct router_conf);
 
 void handleStop(int signal);
 

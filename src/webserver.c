@@ -15,7 +15,7 @@
  */
 int webServer_run = 1;
 
-int runWevServer()
+int runWevServer(struct router_conf routerConf)
 {
   // Gestion du signal ...
   signal(SIGHUP, &handleStop);
@@ -28,7 +28,7 @@ int runWevServer()
   /*daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &handleConnection, NULL, MHD_OPTION_END);*/
   daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
-                            &handleConnection, NULL, MHD_OPTION_END);
+                            &handleConnection, &routerConf, MHD_OPTION_END);
   if (NULL == daemon)
     return 1;
   else
@@ -55,22 +55,23 @@ int runWevServer()
  */
 void handleStop(int signal)
 {
-  switch(signal) {
-    case SIGHUP:
-      printf("Signal SIGHUP received\n");
-      webServer_run = 0;
+  switch (signal)
+  {
+  case SIGHUP:
+    printf("Signal SIGHUP received\n");
+    webServer_run = 0;
     break;
-    case SIGINT:
-      printf("Signal SIGHUP received\n");
-      webServer_run = 0;
+  case SIGINT:
+    printf("Signal SIGHUP received\n");
+    webServer_run = 0;
     break;
-    case SIGQUIT:
-      printf("Signal SIGHUP received\n");
-      webServer_run = 0;
+  case SIGQUIT:
+    printf("Signal SIGHUP received\n");
+    webServer_run = 0;
     break;
-    case SIGTERM:
-      printf("Signal SIGHUP received\n");
-      webServer_run = 0;
+  case SIGTERM:
+    printf("Signal SIGHUP received\n");
+    webServer_run = 0;
     break;
   }
 }
@@ -91,22 +92,39 @@ Hello World !\
 </html>";
   struct MHD_Response *response;
   int ret;
-
+  /*
   printf("New %s request for %s using version %s\n", method, url, version);
   if (NULL == *con_cls)
   {
     *con_cls = connection;
     return MHD_YES;
-  }
+  }*/
 
-  MHD_get_connection_values(connection, MHD_HEADER_KIND, &print_out_key, NULL);
+  //MHD_get_connection_values(connection, MHD_HEADER_KIND, &print_out_key, NULL);
 
   //return MHD_NO;
   //return MHD_YES;
 
-  response = MHD_create_response_from_buffer(strlen(toReturn), (void *)toReturn, MHD_RESPMEM_PERSISTENT);
+  char *bindedResponse = bind_route(url, *((struct router_conf *)cls));
 
-  ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+  if (bindedResponse == NULL)
+  {
+    printf("Invalid route !\n  Aborting\n");
+
+    response = MHD_create_response_from_buffer(strlen(ROUTER_BAD_ROUTE_RESPONSE), (void *)ROUTER_BAD_ROUTE_RESPONSE, MHD_RESPMEM_PERSISTENT);
+
+    ret = MHD_queue_response(connection, MHD_HTTP_NOT_FOUND, response);
+  }
+  else
+  {
+    printf("%s\n", bindedResponse);
+    printf("%d\n", strlen(bindedResponse));
+
+    //response = MHD_create_response_from_buffer(strlen(toReturn), (void *)toReturn, MHD_RESPMEM_PERSISTENT);
+    response = MHD_create_response_from_buffer(strlen(bindedResponse), (void *)bindedResponse, MHD_RESPMEM_PERSISTENT);
+
+    ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+  }
   MHD_destroy_response(response);
 
   return ret;

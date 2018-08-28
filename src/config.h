@@ -4,5 +4,14 @@
 /* Begin configuration */
 #define PORT 8888
 
+#define ROUTER_BAD_ROUTE_RESPONSE "<html>\
+    <head>\
+    <title>Bad route</title>\
+    </head>\
+    <body>\
+    <h1>Bad route. Aborting !</h1>\
+    </body>\
+</html>"
+
 
 #endif

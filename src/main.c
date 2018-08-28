@@ -3,46 +3,63 @@
 #include <microhttpd.h>
 
 #include "webserver.h"
-#include "router.h"
+#include "engine/router/router.h"
 #include "web/test.h"
 
 void dynamicMem();
 
 int main(int argc, char *argv[])
 {
-  //runWevServer();
+/*
+  long double size = 1000;
+  for (int i = 0; i < 10; i++)
+  {
+    size *= 1000;
+  }
 
-  //regfree(((struct router_route*) routerConfig._route_config)->urlRegex);
-  //regfree(((struct router_route*) routerConfig._route_config + sizeof(struct router_route))->urlRegex);
+  struct router_route *allRoutes_ = malloc(size * sizeof(struct router_route));
+
+  struct router_conf routerConf_ = create_router_conf();
+
+  for (int i = 0; i < size; i++)
+  {
+    create_router_route(allRoutes_ + i, "/toto", 0, &callbackFct);
+    add_router_conf(&routerConf_, *(allRoutes_ + i));
+  }
+
+  free_router_conf(routerConf_);
+  free(allRoutes_);*/
 
   struct router_conf routerConf = create_router_conf();
 
-  struct router_route route, route2;
+  struct router_route allRoutes[10];
 
-  printf("OK !\n");
-
-  create_router_route(&route, 10);
-  create_router_route(&route2, 20);
-
-  add_router_conf(&routerConf, route);
-  add_router_conf(&routerConf, route2);
-
-  printf("OK !\n");
-
+  create_router_route(allRoutes + 0, "/toto", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[0]);
+  create_router_route(allRoutes + 1, "/tata", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[1]);
+  create_router_route(allRoutes + 2, "/tutu", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[2]);
+  create_router_route(allRoutes + 3, "/aze", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[3]);
+  create_router_route(allRoutes + 4, "/rty", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[4]);
+  create_router_route(allRoutes + 5, "/azerty", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[5]);
+  create_router_route(allRoutes + 6, "/qsd", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[6]);
+  create_router_route(allRoutes + 7, "/fgh", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[7]);
+  create_router_route(allRoutes + 8, "/wxc", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[8]);
+  create_router_route(allRoutes + 9, "/vbn", 0, &callbackFct);
+  add_router_conf(&routerConf, allRoutes[9]);
+  
   debug_router_conf(routerConf);
+
+  runWevServer(routerConf);
 
   free_router_conf(routerConf);
 
   return 0;
-}
-
-void dynamicMem()
-{
-  for (int i = 0; i < 10000; i++)
-  {
-    char *alloc = (char*) malloc(100 * sizeof(char));
-
-    free(alloc);
-  }
-  return;
 }
