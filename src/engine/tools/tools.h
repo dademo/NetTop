@@ -9,6 +9,14 @@
  */
 int check_regex(char* strRegex);
 
+/**
+ * Getting a regex based on a string and handling errors
+ * 
+ * @param regex The regex that will be created
+ * @param strRegex The original string regex
+ * @param caseSensitive If the regex is case sensitive
+ * @return 0 if OK, 1 if not
+ */
 int get_regex(regex_t* regex, char* strRegex, int caseSensitive);
 
 #endif

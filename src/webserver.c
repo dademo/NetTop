@@ -109,7 +109,7 @@ Hello World !\
 
   if (bindedResponse == NULL)
   {
-    printf("Invalid route !\n  Aborting\n");
+    fprintf(stderr, "Invalid route !\n  Aborting\n");
 
     response = MHD_create_response_from_buffer(strlen(ROUTER_BAD_ROUTE_RESPONSE), (void *)ROUTER_BAD_ROUTE_RESPONSE, MHD_RESPMEM_PERSISTENT);
 
@@ -117,9 +117,6 @@ Hello World !\
   }
   else
   {
-    printf("%s\n", bindedResponse);
-    printf("%d\n", strlen(bindedResponse));
-
     //response = MHD_create_response_from_buffer(strlen(toReturn), (void *)toReturn, MHD_RESPMEM_PERSISTENT);
     response = MHD_create_response_from_buffer(strlen(bindedResponse), (void *)bindedResponse, MHD_RESPMEM_PERSISTENT);
 
@@ -183,6 +180,6 @@ handleConnection (void *cls, struct MHD_Connection *connection,
 int print_out_key(void *cls, enum MHD_ValueKind kind,
                   const char *key, const char *value)
 {
-  printf("%s: %s\n", key, value);
+  fprintf(stderr, "%s: %s\n", key, value);
   return MHD_YES;
 }

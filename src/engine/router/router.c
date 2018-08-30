@@ -47,7 +47,7 @@ int add_router_conf(struct router_conf *conf, struct router_route route)
 
     if (conf->all_routes == NULL)
     {
-        printf("add_router_conf: Unable to malloc (%d Bytes)\n", (conf->arr_size + 1) * sizeof(regex_t));
+        fprintf(stderr, "add_router_conf: Unable to malloc (%d Bytes)\n", (conf->arr_size + 1) * sizeof(regex_t));
         return 1;
     }
 
@@ -75,15 +75,15 @@ int create_router_route(struct router_route *newRoute, char *strRegex, int ignor
 {
     if (newRoute == NULL)
     {
-        printf("create_router_route: NULL pointer given for newRoute\n");
+        fprintf(stderr, "create_router_route: NULL pointer given for newRoute\n");
         return 1;
     }
     if (strRegex == NULL)
     {
-        printf("create_router_route: NULL pointer given for strRegex\n");
+        fprintf(stderr, "create_router_route: NULL pointer given for strRegex\n");
         return 1;
     }
-    
+
     regex_t *regex = (regex_t *)malloc(sizeof(regex_t));
 
     if (get_regex(regex, strRegex, ignoreCase) != 0)
@@ -121,12 +121,43 @@ char *bind_route(const char *strRoute, struct router_conf conf)
 }
 
 /**
+ * The highest level to add a configuration to a router. Will use function of this file to create and add a configuration to the router
+ * 
+ * @param conf The router conf to populate
+ * @param router The string route to add
+ * @param caseSensitive If the regex is case sensitive
+ * @param callbackFct The callback function used if the route matches
+ * @return Return 0 if not error happened, 1 if something appened
+ */
+int router_add_conf(struct router_conf *conf, char *route, int caseSensitive, char *(*callbackFct)(const char *))
+{
+    struct router_route tmpRoute;
+    int res;
+
+    res = create_router_route(&tmpRoute, route, caseSensitive, callbackFct);
+    if (res != 0)
+    {
+        fprintf(stderr, "router_add_conf: Unable to create route\n");
+        return res;
+    }
+
+    res = add_router_conf(conf, tmpRoute);
+    if (res != 0)
+    {
+        fprintf(stderr, "router_add_conf: Unable to add the route\n");
+        return res;
+    }
+
+    return 0;
+}
+
+/**
  * Debug to test the router conf
  * @param conf The router conf
  */
 void debug_router_conf(struct router_conf conf)
 {
-    printf("%s", bind_route("/vbn", conf));
+    fprintf(stderr, "%s", bind_route("/vbn", conf));
 }
 
 /**

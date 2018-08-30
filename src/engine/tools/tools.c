@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <regex.h>
 
+/**
+ * Checking if a regex is valid and print to stderr why the regex won't work
+ * 
+ * @param strRegex The regex to check
+ * @return 0 if OK, 1 if not
+ */
 int check_regex(char *strRegex)
 {
     regex_t regex;
@@ -12,7 +18,7 @@ int check_regex(char *strRegex)
     {
         char buff[200];
         regerror(regCompRes, &regex, buff, 200);
-        printf("check_regex: Unable to create regex : %s", buff);
+        fprintf(stderr, "check_regex: Unable to create regex : %s\n", buff);
         regfree(&regex);
         return 1;
     }
@@ -23,11 +29,19 @@ int check_regex(char *strRegex)
     }
 }
 
+/**
+ * Getting a regex based on a string and handling errors
+ * 
+ * @param regex The regex that will be created
+ * @param strRegex The original string regex
+ * @param caseSensitive If the regex is case sensitive
+ * @return 0 if OK, 1 if not
+ */
 int get_regex(regex_t* regex, char* strRegex, int ignoreCase)
 {
     if(regex == NULL)
     {
-        printf ("get_regex: regex is NULL");
+        fprintf(stderr, "get_regex: regex is NULL\n");
         return 1;
     }
 
@@ -37,7 +51,7 @@ int get_regex(regex_t* regex, char* strRegex, int ignoreCase)
     {
         char buff[200];
         regerror(retCode, regex, buff, 200);
-        printf("check_regex: Unable to create regex : %s\n", buff);
+        fprintf(stderr, "check_regex: Unable to create regex : %s\n", buff);
         regfree(regex);
         return 2;
     }

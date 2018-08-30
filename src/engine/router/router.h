@@ -63,6 +63,17 @@ int create_router_route(struct router_route *newRoute, char *strRegex, int ignor
 char *bind_route(const char *strRoute, struct router_conf conf);
 
 /**
+ * The highest level to add a configuration to a router. Will use function of this file to create and add a configuration to the router
+ * 
+ * @param conf The router conf to populate
+ * @param router The string route to add
+ * @param caseSensitive If the regex is case sensitive
+ * @param callbackFct The callback function used if the route matches
+ * @return Return 0 if not error happened, 1 if something appened
+ */
+int router_add_conf(struct router_conf *conf, char* route, int caseSensitive, char* (*callbackFct)(const char*));
+
+/**
  * Debug to test the router conf
  * @param conf The router conf
  */
