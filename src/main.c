@@ -14,10 +14,10 @@ void dynamicMem();
 
 int main(int argc, char *argv[])
 {
-  do_log("Hello World !", DEBUG);
-  do_log("Hello World !", NOTICE);
-  do_log("Hello World !", WARNING);
-  do_log("Hello World !", ERROR);
+  do_log("Hello World !", LOG_LEVEL_DEBUG);
+  do_log("Hello World !", LOG_LEVEL_NOTICE);
+  do_log("Hello World !", LOG_LEVEL_WARNING);
+  do_log("Hello World !", LOG_LEVEL_ERROR);
 /*
   long double size = 1000;
   for (int i = 0; i < 10; i++)
