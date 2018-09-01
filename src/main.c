@@ -2,14 +2,22 @@
 #include <stdlib.h>
 #include <microhttpd.h>
 
+#include "engine/tools/shellColors.h"
+
 #include "webserver.h"
 #include "engine/router/router.h"
 #include "web/test.h"
+
+#include "engine/tools/log.h"
 
 void dynamicMem();
 
 int main(int argc, char *argv[])
 {
+  do_log("Hello World !", DEBUG);
+  do_log("Hello World !", NOTICE);
+  do_log("Hello World !", WARNING);
+  do_log("Hello World !", ERROR);
 /*
   long double size = 1000;
   for (int i = 0; i < 10; i++)
@@ -34,6 +42,17 @@ int main(int argc, char *argv[])
 
   struct router_route allRoutes[10];
 
+  router_add_conf(&routerConf, "/toto", 0, &callbackFct);
+  router_add_conf(&routerConf, "/tata", 0, &callbackFct);
+  router_add_conf(&routerConf, "/tutu", 0, &callbackFct);
+  router_add_conf(&routerConf, "/aze", 0, &callbackFct);
+  router_add_conf(&routerConf, "/rty", 0, &callbackFct);
+  router_add_conf(&routerConf, "/azerty", 0, &callbackFct);
+  router_add_conf(&routerConf, "/qsd", 0, &callbackFct);
+  router_add_conf(&routerConf, "/fgh", 0, &callbackFct);
+  router_add_conf(&routerConf, "/wxc", 0, &callbackFct);
+  router_add_conf(&routerConf, "/vbn", 0, &callbackFct);
+/*
   create_router_route(allRoutes + 0, "/toto", 0, &callbackFct);
   add_router_conf(&routerConf, allRoutes[0]);
   create_router_route(allRoutes + 1, "/tata", 0, &callbackFct);
@@ -53,9 +72,9 @@ int main(int argc, char *argv[])
   create_router_route(allRoutes + 8, "/wxc", 0, &callbackFct);
   add_router_conf(&routerConf, allRoutes[8]);
   create_router_route(allRoutes + 9, "/vbn", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[9]);
+  add_router_conf(&routerConf, allRoutes[9]);*/
   
-  debug_router_conf(routerConf);
+  //debug_router_conf(routerConf);
 
   runWevServer(routerConf);
 

@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "router.h"
-#include "../tools/tools.h"
+#include "../tools/regex.h"
 
 /**
  * Create an empty router_conf structure
@@ -71,7 +71,7 @@ int add_router_conf(struct router_conf *conf, struct router_route route)
  * 
  * @return Return 0 if not error happened, 1 if something appened
  */
-int create_router_route(struct router_route *newRoute, char *strRegex, int ignoreCase, char *(*callbackFct)(const char *))
+int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, char *(*callbackFct)(const char *))
 {
     if (newRoute == NULL)
     {
@@ -129,7 +129,7 @@ char *bind_route(const char *strRoute, struct router_conf conf)
  * @param callbackFct The callback function used if the route matches
  * @return Return 0 if not error happened, 1 if something appened
  */
-int router_add_conf(struct router_conf *conf, char *route, int caseSensitive, char *(*callbackFct)(const char *))
+int router_add_conf(struct router_conf *conf, const char *route, const int caseSensitive, char *(*callbackFct)(const char *))
 {
     struct router_route tmpRoute;
     int res;

@@ -37,7 +37,7 @@ int check_regex(char *strRegex)
  * @param caseSensitive If the regex is case sensitive
  * @return 0 if OK, 1 if not
  */
-int get_regex(regex_t* regex, char* strRegex, int ignoreCase)
+int get_regex(regex_t* regex, const char* strRegex, const int ignoreCase)
 {
     if(regex == NULL)
     {

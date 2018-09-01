@@ -1,0 +1,71 @@
+#ifndef SHELLCOLORS_H_INCLUDED
+#define SHELLCOLORS_H_INCLUDED
+
+/* https://misc.flogisoft.com/bash/tip_colors_and_formatting */
+
+#define STR(x) #x
+
+/* Reset */
+#define SHELL_ALL_RESET "\e[0m"
+
+/* SHELL_FONT */
+#define SHELL_FONT_BOLD "\e[1m"
+#define SHELL_FONT_DIM "\e[2m"
+#define SHELL_FONT_UNDERLINED "\e[4m"
+#define SHELL_FONT_BLINK "\e[5m"
+#define SHELL_FONT_REVERSE "\e[7m"
+#define SHELL_FONT_HIDDEN "\e[8m"
+
+/* SHELL_RESET */
+#define SHELL_RESET_BOLD "\e[21m"
+#define SHELL_RESET_DIM "\e[22m"
+#define SHELL_RESET_UNDERLINED "\e[24m"
+#define SHELL_RESET_BLINK "\e[25m"
+#define SHELL_RESET_REVERSE "\e[27m"
+#define SHELL_RESET_HIDDEN "\e[28m"
+
+    /* 8/16 Colors */
+/* SHELL_FOREGROUND */
+#define SHELL_FOREGROUND_DEFAULT "\e[39m"
+#define SHELL_FOREGROUND_BLACK "\e[30m"
+#define SHELL_FOREGROUND_RED "\e[31m"
+#define SHELL_FOREGROUND_GREEN "\e[32m"
+#define SHELL_FOREGROUND_YELLOW "\e[33m"
+#define SHELL_FOREGROUND_BLUE "\e[34m"
+#define SHELL_FOREGROUND_MAGENTA "\e[35m"
+#define SHELL_FOREGROUND_CYAN "\e[36m"
+#define SHELL_FOREGROUND_LIGHT_GRAY "\e[37m"
+#define SHELL_FOREGROUND_DARK_GRAY "\e[90m"
+#define SHELL_FOREGROUND_LIGHT_RED "\e[91m"
+#define SHELL_FOREGROUND_LIGHT_GREEN "\e[92m"
+#define SHELL_FOREGROUND_LIGHT_YELLOW "\e[93m"
+#define SHELL_FOREGROUND_LIGHT_BLUE "\e[94m"
+#define SHELL_FOREGROUND_LIGHT_MAGENTA "\e[95m"
+#define SHELL_FOREGROUND_LIGHT_CYAN "\e[96m"
+#define SHELL_FOREGROUND_WHITE "\e[97m"
+
+/* SHELL_BACKGROUND */
+#define SHELL_BACKGROUND_DEFAULT "\e[49m"
+#define SHELL_BACKGROUND_BLACK "\e[40m"
+#define SHELL_BACKGROUND_RED "\e[41m"
+#define SHELL_BACKGROUND_GREEN "\e[42m"
+#define SHELL_BACKGROUND_YELLOW "\e[43m"
+#define SHELL_BACKGROUND_BLUE "\e[44m"
+#define SHELL_BACKGROUND_MAGENTA "\e[45m"
+#define SHELL_BACKGROUND_CYAN "\e[46m"
+#define SHELL_BACKGROUND_LIGHT_GRAY "\e[47m"
+#define SHELL_BACKGROUND_DARK_GRAY "\e[100m"
+#define SHELL_BACKGROUND_LIGHT_RED "\e[101m"
+#define SHELL_BACKGROUND_LIGHT_GREEN "\e[102m"
+#define SHELL_BACKGROUND_LIGHT_YELLOW "\e[103m"
+#define SHELL_BACKGROUND_LIGHT_BLUE "\e[104m"
+#define SHELL_BACKGROUND_LIGHT_MAGENTA "\e[105m"
+#define SHELL_BACKGROUND_LIGHT_CYAN "\e[106m"
+#define SHELL_BACKGROUND_WHITE "\e[107m"
+
+    /* 88/256 Colors */
+#define ADVANCED_FOREGROUND(fg) "\e[38;5;" STR(fg) "m"
+#define ADVANCED_BACKGROUND(bg) "\e[48;5;" STR(bg) "m"
+
+
+#endif

@@ -32,14 +32,14 @@ int runWevServer(struct router_conf routerConf)
   if (NULL == daemon)
     return 1;
   else
-    printf("Server started\n");
+    fprintf(stderr, "Server started\n");
 
   while (webServer_run)
   {
     sleep(1);
   }
 
-  printf("Stopping daemon\n");
+  fprintf(stderr, "Stopping daemon\n");
 
   MHD_stop_daemon(daemon);
 
@@ -58,19 +58,19 @@ void handleStop(int signal)
   switch (signal)
   {
   case SIGHUP:
-    printf("Signal SIGHUP received\n");
+    fprintf(stderr, "Signal SIGHUP received\n");
     webServer_run = 0;
     break;
   case SIGINT:
-    printf("Signal SIGHUP received\n");
+    fprintf(stderr, "Signal SIGHUP received\n");
     webServer_run = 0;
     break;
   case SIGQUIT:
-    printf("Signal SIGHUP received\n");
+    fprintf(stderr, "Signal SIGHUP received\n");
     webServer_run = 0;
     break;
   case SIGTERM:
-    printf("Signal SIGHUP received\n");
+    fprintf(stderr, "Signal SIGHUP received\n");
     webServer_run = 0;
     break;
   }

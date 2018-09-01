@@ -6,6 +6,11 @@ include (cmake/FindMicroHttpd.cmake)
 
 SET(EXEC_NAME ${PROJECT_NAME})
 
+# Options
+
+# Debug
+OPTION(DEBUG, "To enable debug on the executable. Default: OFF" OFF)
+
 SET(
     MODULES
     router
@@ -76,6 +81,11 @@ SET( ALL_SRC
 
 
 add_executable(${EXEC_NAME} "${ALL_SRC}")
+
+IF(DEBUG)
+    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC DEBUG_ENABLED)
+    MESSAGE(STATUS "Debug enabled")
+ENDIF(DEBUG)
 
 
 # Pthread
