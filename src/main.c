@@ -14,11 +14,17 @@ void dynamicMem();
 
 int main(int argc, char *argv[])
 {
+
+  add_log_target("./out.log", LOG_ALL);
+  add_log_target("/dev/stderr", LOG_LEVEL_INFO);
+
   do_log("Hello World !", LOG_LEVEL_DEBUG);
+  do_log("Hello World !", LOG_LEVEL_INFO);
   do_log("Hello World !", LOG_LEVEL_NOTICE);
   do_log("Hello World !", LOG_LEVEL_WARNING);
   do_log("Hello World !", LOG_LEVEL_ERROR);
-/*
+
+  /*
   long double size = 1000;
   for (int i = 0; i < 10; i++)
   {
@@ -52,7 +58,7 @@ int main(int argc, char *argv[])
   router_add_conf(&routerConf, "/fgh", 0, &callbackFct);
   router_add_conf(&routerConf, "/wxc", 0, &callbackFct);
   router_add_conf(&routerConf, "/vbn", 0, &callbackFct);
-/*
+  /*
   create_router_route(allRoutes + 0, "/toto", 0, &callbackFct);
   add_router_conf(&routerConf, allRoutes[0]);
   create_router_route(allRoutes + 1, "/tata", 0, &callbackFct);
@@ -73,12 +79,14 @@ int main(int argc, char *argv[])
   add_router_conf(&routerConf, allRoutes[8]);
   create_router_route(allRoutes + 9, "/vbn", 0, &callbackFct);
   add_router_conf(&routerConf, allRoutes[9]);*/
-  
+
   //debug_router_conf(routerConf);
 
   runWevServer(routerConf);
 
   free_router_conf(routerConf);
+
+  free_all_log_target();
 
   return 0;
 }

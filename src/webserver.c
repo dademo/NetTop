@@ -8,7 +8,9 @@
 #include <microhttpd.h>
 
 #include "config.h"
+#include "engine/config.h"
 #include "webserver.h"
+#include "engine/tools/log.h"
 
 /**
  * Value that indicate if the server keep running
@@ -32,14 +34,15 @@ int runWevServer(struct router_conf routerConf)
   if (NULL == daemon)
     return 1;
   else
-    fprintf(stderr, "Server started\n");
+    //fprintf(stderr, "Server started\n");
+  do_log("Server started", LOG_LEVEL_INFO);
 
   while (webServer_run)
   {
     sleep(1);
   }
 
-  fprintf(stderr, "Stopping daemon\n");
+  do_log("Stopping daemon", LOG_LEVEL_INFO);
 
   MHD_stop_daemon(daemon);
 
@@ -58,19 +61,19 @@ void handleStop(int signal)
   switch (signal)
   {
   case SIGHUP:
-    fprintf(stderr, "Signal SIGHUP received\n");
+    do_log("Signal SIGHUP received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGINT:
-    fprintf(stderr, "Signal SIGHUP received\n");
+    do_log("Signal SIGINT received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGQUIT:
-    fprintf(stderr, "Signal SIGHUP received\n");
+    do_log("Signal SIGQUIT received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGTERM:
-    fprintf(stderr, "Signal SIGHUP received\n");
+    do_log("Signal SIGTERM received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   }
@@ -109,7 +112,9 @@ Hello World !\
 
   if (bindedResponse == NULL)
   {
-    fprintf(stderr, "Invalid route !\n  Aborting\n");
+    char buff[DEFAULT_BUFFER_SIZE];
+    sprintf(buff, "No route found for \"%s\". Aborting", url);
+    do_log(buff, LOG_LEVEL_NOTICE);
 
     response = MHD_create_response_from_buffer(strlen(ROUTER_BAD_ROUTE_RESPONSE), (void *)ROUTER_BAD_ROUTE_RESPONSE, MHD_RESPMEM_PERSISTENT);
 

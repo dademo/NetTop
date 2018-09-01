@@ -87,6 +87,7 @@ IF(DEBUG)
     MESSAGE(STATUS "Debug enabled")
 ENDIF(DEBUG)
 
+    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC __USE_GNU)
 
 # Pthread
 # https://stackoverflow.com/questions/1620918/cmake-and-libpthread
