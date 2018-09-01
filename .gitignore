@@ -80,10 +80,9 @@ Thumbs.db
 /cmake_install.cmake
 /CMakeLists.txt.user
 /Makefile
-/TestC
-/TestC.cbp
-/TestC.kdev4
+/NetTop
+/NetTop.cbp
+/NetTop.kdev4
 /.vscode
 /.kdev4
 
-TestC
