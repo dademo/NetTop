@@ -15,7 +15,8 @@ void dynamicMem();
 int main(int argc, char *argv[])
 {
 
-  add_log_target("./out.log", LOG_ALL);
+  //add_log_target("toto/out.log", LOG_ALL);
+  add_log_target("out.log", LOG_ALL);
   add_log_target("/dev/stderr", LOG_LEVEL_INFO);
 
   do_log("Hello World !", LOG_LEVEL_DEBUG);

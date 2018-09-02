@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <limits.h>
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -32,15 +33,25 @@ void do_log(const char *msg, enum log_level level)
                 /* Vérification de l'existance du dossier */
                 if (currLogTarget->target == NULL)
                 {
-                    _do_log(stderr, "do_log: NULL value found\n", LOG_LEVEL_ERROR);
+                    _do_log(stderr, "do_log: NULL value found", LOG_LEVEL_ERROR);
                 }
                 else
                 {
                     struct stat dir_stat;
-                    char *dirName = getDirName(currLogTarget->target, strlen(currLogTarget->target));
-                    if(dirName == NULL)
+                    char cwd[PATH_MAX];
+                    char *dirName = getAbsoluteDirName(currLogTarget->target, strlen(currLogTarget->target));
+                    if (dirName == NULL)
                     {
-                        dirName == ".";
+                        if (getcwd(cwd, sizeof(cwd)) != NULL)
+                        {
+                            dirName = cwd;
+                        }
+                        else
+                        {
+                            _do_log(stderr, "do_log: Unable to getCwd()", LOG_LEVEL_ERROR);
+                            _do_log(stderr, strerror(errno), LOG_LEVEL_ERROR);
+                            continue;
+                        }
                     }
 
                     if (stat(dirName, &dir_stat) == 0)
@@ -78,7 +89,7 @@ void do_log(const char *msg, enum log_level level)
                     else
                     { /* KO */
                         char errMsg[DEFAULT_BUFFER_SIZE];
-                        sprintf(errMsg, "do_log: Unable to access dir \"%s\"\n", dirName);
+                        sprintf(errMsg, "do_log: Unable to access dir \"%s\"", dirName);
 
                         _do_log(stderr, errMsg, LOG_LEVEL_ERROR);
                         _do_log(stderr, strerror(errno), LOG_LEVEL_ERROR);
@@ -87,7 +98,7 @@ void do_log(const char *msg, enum log_level level)
             }
         }
 
-        if(done == 0)
+        if (done == 0)
         {
             _do_log(stderr, msg, level);
         }
@@ -173,7 +184,7 @@ int add_log_target(char *target, enum log_level targetLevel)
         fprintf(stderr, "add_log_target: Unable to malloc (%d Bytes)\n", sizeof(char) * (srcLen + 1));
         return 1;
     }
-    
+
     memcpy(tmpTarget.target, target, srcLen);
     *(tmpTarget.target + srcLen) = '\0';
 
@@ -192,7 +203,7 @@ void free_all_log_target()
     {
         for (int i = 0; i < allLogTargetSize; i++)
         {
-            struct log_target* currTarget = allLogTargets + i;
+            struct log_target *currTarget = allLogTargets + i;
 
             free(currTarget->target);
         }
