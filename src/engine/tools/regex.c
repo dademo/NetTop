@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <regex.h>
 
+#include "../config.h"
+#include "log.h"
+
 /**
  * Checking if a regex is valid and print to stderr why the regex won't work
  * 
@@ -16,9 +19,14 @@ int check_regex(char *strRegex)
 
     if (regCompRes != 0)
     {
-        char buff[200];
-        regerror(regCompRes, &regex, buff, 200);
-        fprintf(stderr, "check_regex: Unable to create regex : %s\n", buff);
+        char regErrBuff[DEFAULT_BUFFER_SIZE] = "";
+        char buff[DEFAULT_BUFFER_SIZE] = "";
+
+        regerror(regCompRes, &regex, buff, DEFAULT_BUFFER_SIZE);
+        sprintf(buff, "check_regex: Unable to create regex : %s", regErrBuff);
+
+        do_log(buff, LOG_LEVEL_ERROR);
+
         regfree(&regex);
         return 1;
     }
@@ -37,11 +45,11 @@ int check_regex(char *strRegex)
  * @param caseSensitive If the regex is case sensitive
  * @return 0 if OK, 1 if not
  */
-int get_regex(regex_t* regex, const char* strRegex, const int ignoreCase)
+int get_regex(regex_t *regex, const char *strRegex, const int ignoreCase)
 {
-    if(regex == NULL)
+    if (regex == NULL)
     {
-        fprintf(stderr, "get_regex: regex is NULL\n");
+        do_log("get_regex: regex is NULL", LOG_LEVEL_ERROR);
         return 1;
     }
 
@@ -49,11 +57,17 @@ int get_regex(regex_t* regex, const char* strRegex, const int ignoreCase)
 
     if (retCode != 0)
     {
-        char buff[200];
-        regerror(retCode, regex, buff, 200);
-        fprintf(stderr, "check_regex: Unable to create regex : %s\n", buff);
+        char regErrBuff[DEFAULT_BUFFER_SIZE] = "";
+        char buff[DEFAULT_BUFFER_SIZE] = "";
+
+        regerror(retCode, regex, buff, DEFAULT_BUFFER_SIZE);
+        sprintf(buff, "check_regex: Unable to create regex : %s", regErrBuff);
+
+        do_log(buff, LOG_LEVEL_ERROR);
+
         regfree(regex);
-        return 2;
+
+        return 1;
     }
     else
     {

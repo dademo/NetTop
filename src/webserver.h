@@ -18,4 +18,6 @@ int runWevServer(struct router_conf);
 
 void handleStop(int signal);
 
+int doRedirect(char* url, struct MHD_Response *response, struct MHD_Connection* connection);
+
 #endif

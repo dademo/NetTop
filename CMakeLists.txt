@@ -41,6 +41,18 @@ FILE(
     src/web/*.h
     )
 
+FILE(
+    GLOB
+    web_in_mods_sources
+    src/web/in_mods/*.c
+)
+
+FILE(
+    GLOB
+    web_in_mods_headers
+    src/web/in_mods/*.h
+)
+
 # Ajout des modules web
 FOREACH(MODULE ${MODULES})
     # Recherche des fichiers pour le module
@@ -75,6 +87,8 @@ SET( ALL_SRC
     ${base_headers}
     ${web_sources}
     ${web_headers}
+    ${web_in_mods_sources}
+    ${web_in_mods_headers}
     ${modules_sources}
     ${modules_headers}
     )

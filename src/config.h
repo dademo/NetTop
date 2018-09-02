@@ -13,5 +13,14 @@
     </body>\
 </html>"
 
+#define REDIRECT "<html>\
+    <head>\
+    <title>Redirecting</title>\
+    </head>\
+    <body>\
+    <h1>Redirecting</h1>\
+    </body>\
+</html>"
+
 
 #endif

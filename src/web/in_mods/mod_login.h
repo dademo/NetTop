@@ -3,6 +3,14 @@
 
 #include "../../engine/router/router.h"
 
-char *doLogin(const char *url);
+int doLogin(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    void **con_cls);
+
+int doLogout(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    void **con_cls);
 
 #endif

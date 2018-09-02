@@ -71,7 +71,7 @@ void do_log(const char *msg, enum log_level level)
                             }
                             else
                             {
-                                _do_log(logFile, msg, level);
+                                _do_log(logFile, msg, level & currLogTarget->targetLevel);
                                 fflush(logFile);
                                 fclose(logFile);
                                 done = 1;
@@ -120,7 +120,6 @@ void do_log(const char *msg, enum log_level level)
  */
 void _do_log(FILE *fildes, const char *msg, enum log_level level)
 {
-
     time_t currTime = time(NULL);
     char buffer[DEFAULT_BUFFER_SIZE] = "";
     size_t size = -1;
@@ -131,26 +130,27 @@ void _do_log(FILE *fildes, const char *msg, enum log_level level)
         fprintf(stderr, "_do_log: Unable to generate date. Aborting\n");
         return;
     }
-
-    switch (level)
-    {
 #ifdef DEBUG_ENABLED
-    case LOG_LEVEL_DEBUG:
+    if (level & LOG_LEVEL_DEBUG)
+    {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_CYAN " DEBUG:\t%s" SHELL_ALL_RESET "\n", buffer, msg);
-        break;
+    }
 #endif
-    case LOG_LEVEL_INFO:
+    if (level & LOG_LEVEL_INFO)
+    {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_GREEN " INFO:\t%s" SHELL_ALL_RESET "\n", buffer, msg);
-        break;
-    case LOG_LEVEL_NOTICE:
+    }
+    if (level & LOG_LEVEL_NOTICE)
+    {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_MAGENTA " NOTICE:\t%s" SHELL_ALL_RESET "\n", buffer, msg);
-        break;
-    case LOG_LEVEL_WARNING:
+    }
+    if (level & LOG_LEVEL_WARNING)
+    {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_YELLOW " WARNING:\t%s" SHELL_ALL_RESET "\n", buffer, msg);
-        break;
-    case LOG_LEVEL_ERROR:
+    }
+    if (level & LOG_LEVEL_ERROR)
+    {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_RED " ERROR:\t%s" SHELL_ALL_RESET "\n", buffer, msg);
-        break;
     }
 
     return;

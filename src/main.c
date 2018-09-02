@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
 {
 
   //add_log_target("toto/out.log", LOG_ALL);
-  add_log_target("out.log", LOG_ALL);
-  add_log_target("/dev/stderr", LOG_LEVEL_INFO);
+  add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);
+  add_log_target("/dev/stderr", LOG_LEVEL_DEBUG | LOG_LEVEL_WARNING | LOG_LEVEL_ERROR);
 
   do_log("Hello World !", LOG_LEVEL_DEBUG);
   do_log("Hello World !", LOG_LEVEL_INFO);
@@ -53,8 +53,6 @@ int main(int argc, char *argv[])
 
   load_all_modules(&routerConf);
 
-  struct router_route allRoutes[10];
-
   router_add_conf(&routerConf, "/toto", 0, &callbackFct);
   router_add_conf(&routerConf, "/tata", 0, &callbackFct);
   router_add_conf(&routerConf, "/tutu", 0, &callbackFct);
@@ -65,29 +63,6 @@ int main(int argc, char *argv[])
   router_add_conf(&routerConf, "/fgh", 0, &callbackFct);
   router_add_conf(&routerConf, "/wxc", 0, &callbackFct);
   router_add_conf(&routerConf, "/vbn", 0, &callbackFct);
-  /*
-  create_router_route(allRoutes + 0, "/toto", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[0]);
-  create_router_route(allRoutes + 1, "/tata", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[1]);
-  create_router_route(allRoutes + 2, "/tutu", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[2]);
-  create_router_route(allRoutes + 3, "/aze", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[3]);
-  create_router_route(allRoutes + 4, "/rty", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[4]);
-  create_router_route(allRoutes + 5, "/azerty", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[5]);
-  create_router_route(allRoutes + 6, "/qsd", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[6]);
-  create_router_route(allRoutes + 7, "/fgh", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[7]);
-  create_router_route(allRoutes + 8, "/wxc", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[8]);
-  create_router_route(allRoutes + 9, "/vbn", 0, &callbackFct);
-  add_router_conf(&routerConf, allRoutes[9]);*/
-
-  //debug_router_conf(routerConf);
 
   runWevServer(routerConf);
 
