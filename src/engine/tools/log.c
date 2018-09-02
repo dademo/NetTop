@@ -40,6 +40,7 @@ void do_log(const char *msg, enum log_level level)
                     struct stat dir_stat;
                     char cwd[PATH_MAX];
                     char *dirName = getAbsoluteDirName(currLogTarget->target, strlen(currLogTarget->target));
+                    //printf("%s\n", dirName);
                     if (dirName == NULL)
                     {
                         if (getcwd(cwd, sizeof(cwd)) != NULL)

@@ -32,45 +32,25 @@ char *getAbsoluteDirName(char *fullPath, size_t size)
     buffer[0] = '\0';
     cwd[0] = '\0';
 
-    if (spePos == NULL)
-    {
-        return NULL;
-    }
-
     /* Si ce n'est pas un chemin absolu */
     if (fullPath[0] != '/')
     {
-        if (getcwd(cwd, sizeof(cwd)) != NULL)
+        char *tmp = getExecLocation();
+        if (tmp != NULL)
         {
-            strcat(buffer, cwd);
-            buffLen = strlen(buffer);
+            char *pos = memrchr(tmp, '/', strlen(tmp));
+            memcpy(buffer, tmp, pos - tmp);
         }
         else
         {
-            _do_log(stderr, "do_log: Unable to getCwd()", LOG_LEVEL_ERROR);
-            _do_log(stderr, strerror(errno), LOG_LEVEL_ERROR);
-            return NULL;
+            _do_log(stderr, "getAbsoluteDirName: Unable to getExecLocation()", LOG_LEVEL_ERROR);
         }
     }
-
-    dirLength = spePos - fullPath;
-
-    if (buffLen != 0 && buffLen + dirLength > PATH_MAX)
+    else
     {
-        dirLength = PATH_MAX - strlen(buffer);
+        memcpy(buffer, fullPath, spePos - fullPath);
+        buffer[spePos - fullPath] = '\0';
     }
-
-    memcpy(
-        buffer + ((buffLen == -1) ? 0 : buffLen + 1),
-        fullPath,
-        dirLength);
-
-    if (buffLen >= 0)
-    {
-        buffer[buffLen] = '/';
-    }
-
-    buffer[((buffLen == -1) ? 0 : buffLen + 1) + dirLength] = '\0';
 
     return buffer;
 }
@@ -96,4 +76,21 @@ char *getFileName(char *fullPath, size_t size)
     buffer[size - length] = '\0';
 
     return buffer;
+}
+
+char *getExecLocation()
+{
+#ifdef __linux__
+    static char path[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", path, PATH_MAX);
+    if (len == -1)
+    {
+        _do_log(stderr, "getExecLocation: Unable to readlink()", LOG_LEVEL_ERROR);
+        _do_log(stderr, strerror(errno), LOG_LEVEL_ERROR);
+        return NULL;
+    }
+    return path;
+#endif
+
+    return NULL;
 }

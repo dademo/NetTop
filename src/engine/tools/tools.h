@@ -6,4 +6,6 @@ void *memrchr(const void *block, char c, size_t size);
 char *getAbsoluteDirName(char *fullPath, size_t size);
 char *getFileName(char *fullPath, size_t size);
 
+char *getExecLocation();
+
 #endif
