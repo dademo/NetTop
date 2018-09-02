@@ -87,4 +87,6 @@ void debug_router_conf(struct router_conf conf);
  */
 char* callbackFct(const char* url);
 
+char* callbackFct2(const char* url);
+
 #endif

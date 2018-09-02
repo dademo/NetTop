@@ -30,23 +30,22 @@ int runWevServer(struct router_conf routerConf)
   /*daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &handleConnection, NULL, MHD_OPTION_END);*/
   daemon = MHD_start_daemon(
-    #ifdef DEBUG_ENABLED
+#ifdef DEBUG_ENABLED
       MHD_USE_DEBUG |
-    #endif
-      MHD_USE_THREAD_PER_CONNECTION |
-      MHD_USE_SELECT_INTERNALLY,
-    PORT,
-    NULL,
-    NULL,
-    &handleConnection,
-    &routerConf,
-    MHD_OPTION_END
-  );
+#endif
+          MHD_USE_THREAD_PER_CONNECTION |
+          MHD_USE_SELECT_INTERNALLY,
+      PORT,
+      NULL,
+      NULL,
+      &handleConnection,
+      &routerConf,
+      MHD_OPTION_END);
   if (NULL == daemon)
     return 1;
   else
     //fprintf(stderr, "Server started\n");
-  do_log("Server started", LOG_LEVEL_INFO);
+    do_log("Server started", LOG_LEVEL_INFO);
 
   while (webServer_run)
   {
@@ -101,6 +100,11 @@ int handleConnection(void *cls,
 {
   struct MHD_Response *response;
   int ret;
+
+  if (0 != strcmp(method, MHD_HTTP_METHOD_GET))
+  {
+    return MHD_NO;
+  }
   /*
   printf("New %s request for %s using version %s\n", method, url, version);
   if (NULL == *con_cls)

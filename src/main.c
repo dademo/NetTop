@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 
   struct router_conf routerConf = create_router_conf();
 
+  router_add_conf(&routerConf, "/", 0, &callbackFct2);
+
   load_all_modules(&routerConf);
 
   struct router_route allRoutes[10];

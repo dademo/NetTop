@@ -4,6 +4,7 @@
 
 #include "router.h"
 #include "../tools/regex.h"
+#include "../config.h"
 
 /**
  * Create an empty router_conf structure
@@ -85,8 +86,12 @@ int create_router_route(struct router_route *newRoute, const char *strRegex, con
     }
 
     regex_t *regex = (regex_t *)malloc(sizeof(regex_t));
+    char tmpRegex[DEFAULT_BUFFER_SIZE] = "^";
+    strcat(tmpRegex, strRegex);
+    strcat(tmpRegex, "$");
 
-    if (get_regex(regex, strRegex, ignoreCase) != 0)
+    //if (get_regex(regex, strRegex, ignoreCase) != 0)
+    if (get_regex(regex, tmpRegex, ignoreCase) != 0)
     {
         free(regex);
         return 1;
@@ -171,4 +176,10 @@ char *callbackFct(const char *url)
 {
     printf("Received route ::%s::\n", url);
     return "TOTO\n";
+}
+
+
+char *callbackFct2(const char *url)
+{
+    return "TOTO2";
 }
