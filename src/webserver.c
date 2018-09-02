@@ -150,7 +150,7 @@ int handleConnection(void *cls,
 
     if (strlen(clientBuffIP) > 0)
     {
-      sprintf(msgBuff, "Request: %s:%d\tno_route (%s)", clientBuffIP, clientPort, url);
+      sprintf(msgBuff, "Request: %s\t%d\tno_route (%s)", clientBuffIP, clientPort, url);
       do_log(msgBuff, LOG_LEVEL_NOTICE);
     }
   }
@@ -163,7 +163,7 @@ int handleConnection(void *cls,
 
     if (strlen(clientBuffIP) > 0)
     {
-      sprintf(msgBuff, "Request: %s:%d\tOK", clientBuffIP, clientPort);
+      sprintf(msgBuff, "Request: %s\t%d\tOK", clientBuffIP, clientPort);
       do_log(msgBuff, LOG_LEVEL_INFO);
     }
   }
