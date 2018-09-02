@@ -29,8 +29,19 @@ int runWevServer(struct router_conf routerConf)
 
   /*daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &handleConnection, NULL, MHD_OPTION_END);*/
-  daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
-                            &handleConnection, &routerConf, MHD_OPTION_END);
+  daemon = MHD_start_daemon(
+    #ifdef DEBUG_ENABLED
+      MHD_USE_DEBUG |
+    #endif
+      MHD_USE_THREAD_PER_CONNECTION |
+      MHD_USE_SELECT_INTERNALLY,
+    PORT,
+    NULL,
+    NULL,
+    &handleConnection,
+    &routerConf,
+    MHD_OPTION_END
+  );
   if (NULL == daemon)
     return 1;
   else
@@ -88,11 +99,6 @@ int handleConnection(void *cls,
                      size_t *upload_data_size,
                      void **con_cls)
 {
-  const char *toReturn = "<html>\
-<body>\
-Hello World !\
-</body>\
-</html>";
   struct MHD_Response *response;
   int ret;
   /*

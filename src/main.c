@@ -10,6 +10,8 @@
 
 #include "engine/tools/log.h"
 
+#include "web/config.h"
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
@@ -46,6 +48,8 @@ int main(int argc, char *argv[])
   free(allRoutes_);*/
 
   struct router_conf routerConf = create_router_conf();
+
+  load_all_modules(&routerConf);
 
   struct router_route allRoutes[10];
 

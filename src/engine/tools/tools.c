@@ -65,10 +65,12 @@ char *getAbsoluteDirName(char *fullPath, size_t size)
         fullPath,
         dirLength
     );
+
     if(buffLen >= 0)
     {
         buffer[buffLen] = '/';
     }
+    
     buffer[((buffLen == -1)? 0 : buffLen + 1) + dirLength] = '\0';
 
     return buffer;

@@ -1,7 +1,6 @@
 #ifndef ROUTER_H_INCLUDED
 #define ROUTER_H_INCLUDED
 
-#include <microhttpd.h>
 #include <regex.h>
 
 struct router_conf
@@ -71,7 +70,7 @@ char *bind_route(const char *strRoute, struct router_conf conf);
  * @param callbackFct The callback function used if the route matches
  * @return Return 0 if not error happened, 1 if something appened
  */
-int router_add_conf(struct router_conf *conf, const char* route, const int ignoreCase, char* (*callbackFct)(const char*));
+int router_add_conf(struct router_conf *conf, const char* route, const int caseSensitive, char* (*callbackFct)(const char*));
 
 /**
  * Debug to test the router conf
