@@ -21,13 +21,15 @@ EOF
 
 errecho "Scanning for web modules..."
 for mod_file in src/web/mod_*.c; do
-    mod=$(echo "${mod_file}" | sed -e 's/src\/web\///; s/mod_//; s/.c$//')
+    if [ -f "${mod_file}" ]; then
+	    mod=$(echo "${mod_file}" | sed -e 's/src\/web\///; s/mod_//; s/.c$//')
 
-    errecho "Found module \e[1m${mod}\e[0m"
+	    errecho "Found module \e[1m${mod}\e[0m"
 
-    mod_list[${index}]="${mod_file}"
+	    mod_list[${index}]="${mod_file}"
 
-    ((index++))
+	    ((index++))
+    fi
 done
 
 cat << EOF

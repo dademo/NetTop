@@ -2,12 +2,7 @@
 #include <stdio.h>
 
 #include "mod_login.h"
-#include "../engine/router/router.h"
-
-void module_load_login(struct router_conf *conf)
-{
-    router_add_conf(conf, "/login", 0, &doLogin);
-}
+#include "../../engine/router/router.h"
 
 char *doLogin(const char* url)
 {

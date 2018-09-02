@@ -5,12 +5,14 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <microhttpd.h>
 
 #include "config.h"
 #include "engine/config.h"
-#include "webserver.h"
 #include "engine/tools/log.h"
+#include "web/in_mods/mod_login.h"
+#include "webserver.h"
 
 /**
  * Value that indicate if the server keep running
@@ -44,7 +46,6 @@ int runWevServer(struct router_conf routerConf)
   if (NULL == daemon)
     return 1;
   else
-    //fprintf(stderr, "Server started\n");
     do_log("Server started", LOG_LEVEL_INFO);
 
   while (webServer_run)
@@ -101,6 +102,11 @@ int handleConnection(void *cls,
   struct MHD_Response *response;
   int ret;
 
+  char clientBuffIP[DEFAULT_BUFFER_SIZE] = "";
+  int clientPort = -1;
+  char msgBuff[DEFAULT_BUFFER_SIZE] = "";
+
+
   if (0 != strcmp(method, MHD_HTTP_METHOD_GET))
   {
     return MHD_NO;
@@ -115,20 +121,38 @@ int handleConnection(void *cls,
 
   //MHD_get_connection_values(connection, MHD_HEADER_KIND, &print_out_key, NULL);
 
-  //return MHD_NO;
-  //return MHD_YES;
+  /* Getting the client infos */
+  const union MHD_ConnectionInfo *connInfo = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+  struct sockaddr *client = *(struct sockaddr **)connInfo;
+
+  if (client->sa_family == AF_INET)
+  {
+    struct sockaddr_in *netClient = (struct sockaddr_in *)client;
+    inet_ntop(AF_INET, &(netClient->sin_addr), clientBuffIP, DEFAULT_BUFFER_SIZE);
+    clientPort = netClient->sin_port;
+  }
+  if (client->sa_family == AF_INET6)
+  {
+    struct sockaddr_in6 *netClient = (struct sockaddr_in6 *)client;
+    inet_ntop(AF_INET6, &(netClient->sin6_addr), clientBuffIP, DEFAULT_BUFFER_SIZE);
+    clientPort = netClient->sin6_port;
+  }
 
   char *bindedResponse = bind_route(url, *((struct router_conf *)cls));
 
   if (bindedResponse == NULL)
   {
     char buff[DEFAULT_BUFFER_SIZE];
-    sprintf(buff, "No route found for \"%s\". Aborting", url);
-    do_log(buff, LOG_LEVEL_NOTICE);
 
     response = MHD_create_response_from_buffer(strlen(ROUTER_BAD_ROUTE_RESPONSE), (void *)ROUTER_BAD_ROUTE_RESPONSE, MHD_RESPMEM_PERSISTENT);
 
     ret = MHD_queue_response(connection, MHD_HTTP_NOT_FOUND, response);
+
+    if (strlen(clientBuffIP) > 0)
+    {
+      sprintf(msgBuff, "Request: %s:%d\tno_route (%s)", clientBuffIP, clientPort, url);
+      do_log(msgBuff, LOG_LEVEL_NOTICE);
+    }
   }
   else
   {
@@ -136,6 +160,12 @@ int handleConnection(void *cls,
     response = MHD_create_response_from_buffer(strlen(bindedResponse), (void *)bindedResponse, MHD_RESPMEM_PERSISTENT);
 
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+
+    if (strlen(clientBuffIP) > 0)
+    {
+      sprintf(msgBuff, "Request: %s:%d\tOK", clientBuffIP, clientPort);
+      do_log(msgBuff, LOG_LEVEL_INFO);
+    }
   }
   MHD_destroy_response(response);
 
