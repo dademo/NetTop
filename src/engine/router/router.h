@@ -16,7 +16,16 @@ struct router_route
         const char *,
         struct MHD_Response *,
         struct MHD_Connection *,
+        const char *upload_data,
+        size_t *upload_data_size,
         void **);
+};
+
+enum route_status
+{
+    route_status_NO = 0,
+    route_status_OK = 1,
+    route_status_KO = 2
 };
 
 /**
@@ -53,7 +62,7 @@ int add_router_conf(struct router_conf *conf, struct router_route route);
  * 
  * @return Return 0 if not error happened, 1 if something appened
  */
-int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **));
+int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, const char *, size_t *, void **));
 
 /**
  * Bind a route and call the appropriate function
@@ -63,7 +72,7 @@ int create_router_route(struct router_route *newRoute, const char *strRegex, con
  * 
  * @return The ret value
  */
-int bind_route(const char *strRoute, struct MHD_Response *, struct MHD_Connection *, void **, struct router_conf conf);
+int bind_route(enum route_status *status, const char *strRoute, struct MHD_Response *response, struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls, struct router_conf conf);
 
 /**
  * The highest level to add a configuration to a router. Will use function of this file to create and add a configuration to the router
@@ -74,7 +83,7 @@ int bind_route(const char *strRoute, struct MHD_Response *, struct MHD_Connectio
  * @param callbackFct The callback function used if the route matches
  * @return Return 0 if not error happened, 1 if something appened
  */
-int router_add_conf(struct router_conf *conf, const char *rMHD_create_response_from_bufferoute, const int caseSensitive, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **));
+int router_add_conf(struct router_conf *conf, const char *rMHD_create_response_from_bufferoute, const int caseSensitive, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, const char *, size_t *, void **));
 
 /**
  * Debug to test the router conf
@@ -95,6 +104,8 @@ int callbackFct2(
     const char *url,
     struct MHD_Response *response,
     struct MHD_Connection *connection,
+    const char *upload_data,
+    size_t *upload_data_size,
     void **con_cls);
 
 #endif

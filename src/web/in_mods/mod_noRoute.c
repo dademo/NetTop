@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <microhttpd.h>
 
 #include "mod_noRoute.h"
+
 
 int noRoute(
     const char *url,

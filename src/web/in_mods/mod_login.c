@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <microhttpd.h>
 
 #include "mod_login.h"
@@ -17,12 +18,14 @@ int doLogin(
     struct MHD_Connection *connection,
     void **con_cls)
 {
+    doGenKey();
     char *username;
     const char *password = "testpass";
     const char *realm = "test@example.com";
     int ret;
 
     username = MHD_digest_auth_get_username(connection);
+
     if (username == NULL)
     {
         response = MHD_create_response_from_buffer(strlen(DENIED),
@@ -61,4 +64,100 @@ int doLogin(
     MHD_destroy_response(response);
 
     return ret;
+}
+
+struct login_key doGenKey()
+{
+    struct login_key key;
+    char strKey[129];
+
+    for (int i = 0; i < 128; i++)
+    {
+        int tmpVal = -1;
+        int _continue = 1;
+
+        while (_continue == 1)
+        {
+            tmpVal = rand() % 128;
+            if (
+                /*(tmpVal >= 'a' && tmpVal <= 'z') ||
+                (tmpVal >= 'A' && tmpVal <= 'Z')*/
+                tmpVal >= 33 && tmpVal <= 126)
+            {
+                _continue = 0;
+            }
+        }
+
+        key.key[i] = tmpVal;
+    }
+    key.key[128] = '\0';
+    key.lastAction = time(NULL);
+
+    return key;
+}
+
+int addLoginKey(struct login_key key)
+{
+    allLoginKeys = realloc(allLoginKeys, (allLoginKeysLen + 1) * sizeof(struct login_key));
+    if (allLoginKeys == NULL)
+    {
+        fprintf(stderr, "addLoginKey: Unable to malloc (%d Bytes)\n", (allLoginKeysLen + 1) * sizeof(struct login_key));
+        return 1;
+    }
+
+    memcpy(allLoginKeys + allLoginKeysLen, &key, sizeof(struct login_key));
+
+    // Updating the datas
+    //conf->all_routes = new_arr;
+    allLoginKeysLen++;
+
+    return 0;
+}
+
+int delLoginKey(struct login_key *key)
+{
+    struct login_key* finalList = malloc((allLoginKeysLen - 1) * sizeof(struct login_key));
+    int beforeLen = key - allLoginKeys;
+    int afterLen = allLoginKeysLen - beforeLen - 1;
+
+    if(finalList == NULL)
+    {
+        fprintf(stderr, "delLoginKey: Unable to malloc size (%d Bytes)\n", (allLoginKeysLen - 1) * sizeof(struct login_key));
+        return 1;
+    }
+
+    memcpy(finalList, allLoginKeys, beforeLen * sizeof(struct login_key));
+
+    memcpy(finalList + beforeLen, allLoginKeys + beforeLen + 1, afterLen * sizeof(struct login_key));
+
+    free(allLoginKeys);
+    allLoginKeys = finalList;
+    allLoginKeysLen--;
+
+    return 0;
+}
+
+struct login_key *getLoginKey(char key[129])
+{
+    for (int i = 0; i < allLoginKeysLen; i++)
+    {
+        struct login_key *currKey = allLoginKeys + i;
+        if (strcmp(currKey->key, key) == 0)
+        {
+            return currKey;
+        }
+    }
+    return NULL;
+}
+
+void clientUpdateLoginKeyAction(char strKey[129])
+{
+    struct login_key* key = getLoginKey(strKey);
+    key->lastAction = time(NULL);
+}
+
+void freeAllLoginKeys()
+{
+    free(allLoginKeys);
+    allLoginKeysLen = 0;
 }

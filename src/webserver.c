@@ -128,7 +128,7 @@ int handleConnection(void *cls,
   char *bindedResponse;
 
   /* Allowing only GET requests */
-  if (0 != strcmp(method, MHD_HTTP_METHOD_GET))
+  if (0 != strcmp(method, MHD_HTTP_METHOD_GET) && 0 != strcmp(method, MHD_HTTP_METHOD_POST))
   {
     return MHD_NO;
   }
@@ -161,7 +161,22 @@ int handleConnection(void *cls,
   else
   {
     //bindedResponse = bind_route(url, *((struct router_conf *)cls));
-    ret = bind_route(url, response, connection, con_cls, *((struct router_conf *)cls));
+    enum route_status status = route_status_NO;
+    ret = bind_route(&status, url, response, connection, upload_data, upload_data_size, con_cls, *((struct router_conf *)cls));
+
+    if (strlen(clientBuffIP) > 0)
+    {
+      if (ret == route_status_OK)
+      {
+        sprintf(msgBuff, "Request: %s\t%d\tOK", clientBuffIP, clientPort);
+        do_log(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
+      }
+      else
+      {
+        sprintf(msgBuff, "Request: %s\t%d\tno_route (%s)", clientBuffIP, clientPort, url);
+        do_log(msgBuff, LOG_LEVEL_NOTICE | LOG_LEVEL_DEBUG);
+      }
+    }
 
     /*if (bindedResponse == NULL)
     {

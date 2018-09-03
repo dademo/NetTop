@@ -76,7 +76,7 @@ int add_router_conf(struct router_conf *conf, struct router_route route)
  * 
  * @return Return 0 if not error happened, 1 if something appened
  */
-int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **))
+int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, const char *, size_t *, void **))
 {
     if (newRoute == NULL)
     {
@@ -115,7 +115,7 @@ int create_router_route(struct router_route *newRoute, const char *strRegex, con
  * 
  * @return The text given by the callback function; will be returned to the client
  */
-int bind_route(const char *strRoute, struct MHD_Response *response, struct MHD_Connection *connection, void **con_cls, struct router_conf conf)
+int bind_route(enum route_status *status, const char *strRoute, struct MHD_Response *response, struct MHD_Connection *connection, const char *upload_data, size_t *upload_data_size, void **con_cls, struct router_conf conf)
 {
     for (int i = 0; i < conf.arr_size; i++)
     {
@@ -123,19 +123,16 @@ int bind_route(const char *strRoute, struct MHD_Response *response, struct MHD_C
         int res = regexec(route->route_regex, strRoute, 0, 0, 0);
         if (res == 0)
         {
-            return (*route->callbackFct)(strRoute, response, connection, con_cls);
+            int ret = (*route->callbackFct)(strRoute, response, connection, upload_data, upload_data_size, con_cls);
+            *status = route_status_OK;
+            return ret;
         }
     }
 
+    *status = route_status_KO;
+
     // No route found
-    /*int ret = 0;
-    response = MHD_create_response_from_buffer(strlen(ROUTER_BAD_ROUTE_RESPONSE), (void *)ROUTER_BAD_ROUTE_RESPONSE, MHD_RESPMEM_PERSISTENT);
-    ret = MHD_queue_response(connection, MHD_HTTP_MOVED_PERMANENTLY, response);
-
-    MHD_destroy_response(response);
-
-    return MHD_HTTP_NOT_FOUND;*/
-    return(noRoute(strRoute, response, connection, con_cls));
+    return (noRoute(strRoute, response, connection, con_cls));
 }
 
 /**
@@ -147,7 +144,7 @@ int bind_route(const char *strRoute, struct MHD_Response *response, struct MHD_C
  * @param callbackFct The callback function used if the route matches
  * @return Return 0 if not error happened, 1 if something appened
  */
-int router_add_conf(struct router_conf *conf, const char *route, const int caseSensitive, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **))
+int router_add_conf(struct router_conf *conf, const char *route, const int caseSensitive, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, const char *, size_t *, void **))
 {
     struct router_route tmpRoute;
     int res;
@@ -195,11 +192,14 @@ int callbackFct2(
     const char *url,
     struct MHD_Response *response,
     struct MHD_Connection *connection,
+    const char *upload_data,
+    size_t *upload_data_size,
     void **con_cls)
 {
     int ret = -1;
-    char strResponse[] = "TOTO\n";
+    char *strResponse = "TOTO";
 
+    //response = MHD_create_response_from_buffer(strlen(strResponse), (void *)strResponse, MHD_RESPMEM_PERSISTENT);
     response = MHD_create_response_from_buffer(strlen(strResponse), (void *)strResponse, MHD_RESPMEM_PERSISTENT);
 
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
