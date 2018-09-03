@@ -43,6 +43,12 @@ void do_log(const char *msg, enum log_level level)
                     //printf("%s\n", dirName);
                     if (dirName == NULL)
                     {
+                        _do_log(stderr, "do_log: Unable to getAbsoluteDirName()", LOG_LEVEL_ERROR);
+                        continue;
+                    }
+                    /*
+                    if (dirName == NULL)
+                    {
                         if (getcwd(cwd, sizeof(cwd)) != NULL)
                         {
                             dirName = cwd;
@@ -53,7 +59,7 @@ void do_log(const char *msg, enum log_level level)
                             _do_log(stderr, strerror(errno), LOG_LEVEL_ERROR);
                             continue;
                         }
-                    }
+                    }*/
 
                     if (stat(dirName, &dir_stat) == 0)
                     { /* OK */

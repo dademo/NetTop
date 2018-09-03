@@ -8,9 +8,4 @@ int doLogin(
     struct MHD_Connection *connection,
     void **con_cls);
 
-int doLogout(
-    struct MHD_Response *response,
-    struct MHD_Connection *connection,
-    void **con_cls);
-
 #endif

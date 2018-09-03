@@ -21,11 +21,7 @@ int main(int argc, char *argv[])
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);
   add_log_target("/dev/stderr", LOG_LEVEL_DEBUG | LOG_LEVEL_WARNING | LOG_LEVEL_ERROR);
 
-  do_log("Hello World !", LOG_LEVEL_DEBUG);
-  do_log("Hello World !", LOG_LEVEL_INFO);
-  do_log("Hello World !", LOG_LEVEL_NOTICE);
-  do_log("Hello World !", LOG_LEVEL_WARNING);
-  do_log("Hello World !", LOG_LEVEL_ERROR);
+  do_log("Hello World !", LOG_ALL | LOG_LEVEL_DEBUG);
 
   /*
   long double size = 1000;
