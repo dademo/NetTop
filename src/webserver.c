@@ -160,9 +160,10 @@ int handleConnection(void *cls,
   }
   else
   {
-    bindedResponse = bind_route(url, *((struct router_conf *)cls));
+    //bindedResponse = bind_route(url, *((struct router_conf *)cls));
+    ret = bind_route(url, response, connection, con_cls, *((struct router_conf *)cls));
 
-    if (bindedResponse == NULL)
+    /*if (bindedResponse == NULL)
     {
       char buff[DEFAULT_BUFFER_SIZE];
 
@@ -183,13 +184,15 @@ int handleConnection(void *cls,
 
       ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 
+      
+
       if (strlen(clientBuffIP) > 0)
       {
         sprintf(msgBuff, "Request: %s\t%d\tOK", clientBuffIP, clientPort);
         do_log(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
       }
-    }
-    MHD_destroy_response(response);
+    }*/
+    //MHD_destroy_response(response);
   }
 
   return ret;

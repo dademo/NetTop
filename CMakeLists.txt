@@ -53,7 +53,7 @@ FILE(
     src/web/in_mods/*.h
 )
 
-# Ajout des modules web
+# Ajout des modules système
 FOREACH(MODULE ${MODULES})
     # Recherche des fichiers pour le module
     FILE(

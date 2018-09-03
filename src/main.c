@@ -49,16 +49,16 @@ int main(int argc, char *argv[])
 
   load_all_modules(&routerConf);
 
-  router_add_conf(&routerConf, "/toto", 0, &callbackFct);
-  router_add_conf(&routerConf, "/tata", 0, &callbackFct);
-  router_add_conf(&routerConf, "/tutu", 0, &callbackFct);
-  router_add_conf(&routerConf, "/aze", 0, &callbackFct);
-  router_add_conf(&routerConf, "/rty", 0, &callbackFct);
-  router_add_conf(&routerConf, "/azerty", 0, &callbackFct);
-  router_add_conf(&routerConf, "/qsd", 0, &callbackFct);
-  router_add_conf(&routerConf, "/fgh", 0, &callbackFct);
-  router_add_conf(&routerConf, "/wxc", 0, &callbackFct);
-  router_add_conf(&routerConf, "/vbn", 0, &callbackFct);
+  router_add_conf(&routerConf, "/toto", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/tata", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/tutu", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/aze", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/rty", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/azerty", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/qsd", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/fgh", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/wxc", 0, &callbackFct2);
+  router_add_conf(&routerConf, "/vbn", 0, &callbackFct2);
 
   runWevServer(routerConf);
 

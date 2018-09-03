@@ -11,8 +11,12 @@ struct router_conf
 
 struct router_route
 {
-    regex_t* route_regex;
-    char* (*callbackFct)(const char*);
+    regex_t *route_regex;
+    int (*callbackFct)(
+        const char *,
+        struct MHD_Response *,
+        struct MHD_Connection *,
+        void **);
 };
 
 /**
@@ -49,7 +53,7 @@ int add_router_conf(struct router_conf *conf, struct router_route route);
  * 
  * @return Return 0 if not error happened, 1 if something appened
  */
-int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, char* (*callbackFct)(const char*));
+int create_router_route(struct router_route *newRoute, const char *strRegex, const int ignoreCase, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **));
 
 /**
  * Bind a route and call the appropriate function
@@ -57,9 +61,9 @@ int create_router_route(struct router_route *newRoute, const char *strRegex, con
  * @param strRoute The URL request route
  * @param conf The router conf
  * 
- * @return The text given by the callback function; will be returned to the client
+ * @return The ret value
  */
-char *bind_route(const char *strRoute, struct router_conf conf);
+int bind_route(const char *strRoute, struct MHD_Response *, struct MHD_Connection *, void **, struct router_conf conf);
 
 /**
  * The highest level to add a configuration to a router. Will use function of this file to create and add a configuration to the router
@@ -70,7 +74,7 @@ char *bind_route(const char *strRoute, struct router_conf conf);
  * @param callbackFct The callback function used if the route matches
  * @return Return 0 if not error happened, 1 if something appened
  */
-int router_add_conf(struct router_conf *conf, const char* route, const int caseSensitive, char* (*callbackFct)(const char*));
+int router_add_conf(struct router_conf *conf, const char *rMHD_create_response_from_bufferoute, const int caseSensitive, int (*callbackFct)(const char *, struct MHD_Response *, struct MHD_Connection *, void **));
 
 /**
  * Debug to test the router conf
@@ -85,8 +89,12 @@ void debug_router_conf(struct router_conf conf);
  * 
  * @return A test message
  */
-char* callbackFct(const char* url);
+char *callbackFct(const char *url);
 
-char* callbackFct2(const char* url);
+int callbackFct2(
+    const char *url,
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    void **con_cls);
 
 #endif
