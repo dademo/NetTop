@@ -6,30 +6,66 @@
 
 #include "../../engine/router/router.h"
 
-struct login_key
+#define IS_LOGGED(user) ((getLoggedUser((union netAddress)user) != NULL) ? 1 : 0)
+
+#define PAGE "<html><head><title>libmicrohttpd demo</title></head><body>Access granted</body></html>"
+#define DENIED "<html><head><title>libmicrohttpd demo</title></head><body>Access denied</body></html>"
+#define LOGOUT "<html><head><title>libmicrohttpd demo</title></head><body>Logout</body></html>"
+#define ALREADY_LOGGED_IN "Already logged in"
+#define ALREADY_LOGGED_OUT "Already logged out"
+#define LOGIN_OK "OK"
+#define LOGIN_KO "KO"
+#define LOGIN_BAD_METHOD "Method not allowed"
+#define LOGIN_USAGE "USAGE: POST:\nusername: String\nPassword: String\n"
+#define LOGIN_NO "Not logged in"
+
+union netAddress {
+    struct sockaddr orig;
+    struct sockaddr_in ipv4;
+    struct sockaddr_in6 ipv6;
+};
+
+struct login_struct
 {
-    char key[129];
+    union netAddress loggedUser;
     time_t lastAction;
 };
 
-static struct login_key *allLoginKeys = NULL;
-static size_t allLoginKeysLen = 0;
+static struct login_struct *allLoggedUsers = NULL;
+static size_t allLoggedUsersLen = 0;
 
 int doLogin(
     struct MHD_Response *response,
     struct MHD_Connection *connection,
+    const char *method,
+    const char *upload_data,
+    size_t *upload_data_size,
     void **con_cls);
 
-struct login_key doGenKey();
+int doLogout(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    const char *method,
+    const char *upload_data,
+    size_t *upload_data_size,
+    void **con_cls);
 
-int addLoginKey(struct login_key key);
+int doLoginStatus(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    const char *method,
+    void **con_cls);
 
-int delLoginKey(struct login_key *key);
+int addLoggedUser(union netAddress user);
 
-struct login_key *getLoginKey(char key[129]);
+int delLoggedUser(struct login_struct *user);
 
-void clientUpdateAction(char strKey[129]);
+struct login_struct *getLoggedUser(union netAddress user);
 
-void freeAllLoginKeys();
+void loggedUserUpdateAction(struct login_struct *user);
+
+void freeAllLoggedUsers();
+
+int compareAddress(union netAddress left, union netAddress right);
 
 #endif

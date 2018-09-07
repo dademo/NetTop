@@ -20,17 +20,6 @@ void dynamicMem();
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
-  struct login_key tmpAllLoginKeys[10];
-  for (int i = 0; i < 10; i++)
-  {
-    tmpAllLoginKeys[i] = doGenKey();
-    addLoginKey(tmpAllLoginKeys[i]);
-  }
-  struct login_key *tmpKey = getLoginKey(tmpAllLoginKeys[5].key);
-
-  delLoginKey(getLoginKey(tmpAllLoginKeys[5].key));
-
-  freeAllLoginKeys();
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);
@@ -80,6 +69,8 @@ int main(int argc, char *argv[])
   free_router_conf(routerConf);
 
   free_all_log_target();
+
+  freeAllLoggedUsers();
 
   return 0;
 }

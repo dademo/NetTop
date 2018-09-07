@@ -7,18 +7,54 @@
 #include "mod_login.h"
 #include "../../engine/router/router.h"
 
-#define PAGE "<html><head><title>libmicrohttpd demo</title></head><body>Access granted</body></html>"
-#define DENIED "<html><head><title>libmicrohttpd demo</title></head><body>Access denied</body></html>"
-#define LOGOUT "<html><head><title>libmicrohttpd demo</title></head><body>Logout</body></html>"
-#define ALREADY_LOGOUT "<html><head><title>libmicrohttpd demo</title></head><body>Already logged out</body></html>"
-#define OPAQUE "11733b200778ce33060f31c9af70a870ba96ddd4"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 int doLogin(
     struct MHD_Response *response,
     struct MHD_Connection *connection,
+    const char *method,
+    const char *upload_data,
+    size_t *upload_data_size,
     void **con_cls)
 {
-    doGenKey();
+    int ret;
+
+    if (strcmp(method, MHD_HTTP_METHOD_POST) == 0)
+    {
+
+        /* Getting the client infos */
+        const union MHD_ConnectionInfo *connInfo = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+        struct sockaddr *client = *(struct sockaddr **)connInfo;
+        if (client->sa_family == AF_INET)
+        {
+            struct sockaddr_in *netClient = (struct sockaddr_in *)client;
+
+            /*
+        inet_ntop(AF_INET, &(netClient->sin_addr), clientBuffIP, DEFAULT_BUFFER_SIZE);
+        clientPort = netClient->sin_port;
+        */
+        }
+
+        if (IS_LOGGED(*client) == 1)
+        {
+            response = MHD_create_response_from_buffer(strlen(ALREADY_LOGGED_IN),
+                                                       ALREADY_LOGGED_IN,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
+        else
+        {
+            addLoggedUser((union netAddress) * client);
+            response = MHD_create_response_from_buffer(strlen(LOGIN_OK),
+                                                       LOGIN_OK,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
+        /*
     char *username;
     const char *password = "testpass";
     const char *realm = "test@example.com";
@@ -62,102 +98,259 @@ int doLogin(
                                                MHD_RESPMEM_PERSISTENT);
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
     MHD_destroy_response(response);
-
+*/
+    }
+    else
+    {
+        response = MHD_create_response_from_buffer(strlen(LOGIN_BAD_METHOD),
+                                                   LOGIN_BAD_METHOD,
+                                                   MHD_RESPMEM_PERSISTENT);
+        ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
+        MHD_destroy_response(response);
+    }
     return ret;
 }
 
-struct login_key doGenKey()
+int doLogout(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    const char *method,
+    const char *upload_data,
+    size_t *upload_data_size,
+    void **con_cls)
 {
-    struct login_key key;
-    char strKey[129];
+    int ret;
 
-    for (int i = 0; i < 128; i++)
+    if (strcmp(method, MHD_HTTP_METHOD_POST) == 0)
     {
-        int tmpVal = -1;
-        int _continue = 1;
 
-        while (_continue == 1)
+        /* Getting the client infos */
+        const union MHD_ConnectionInfo *connInfo = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+        struct sockaddr *client = *(struct sockaddr **)connInfo;
+        if (client->sa_family == AF_INET)
         {
-            tmpVal = rand() % 128;
-            if (
-                /*(tmpVal >= 'a' && tmpVal <= 'z') ||
-                (tmpVal >= 'A' && tmpVal <= 'Z')*/
-                tmpVal >= 33 && tmpVal <= 126)
-            {
-                _continue = 0;
-            }
+            struct sockaddr_in *netClient = (struct sockaddr_in *)client;
+
+            /*
+        inet_ntop(AF_INET, &(netClient->sin_addr), clientBuffIP, DEFAULT_BUFFER_SIZE);
+        clientPort = netClient->sin_port;
+        */
         }
 
-        key.key[i] = tmpVal;
+        if (IS_LOGGED(*client) == 1)
+        {
+            struct login_struct *loggedUser = getLoggedUser((union netAddress) * client);
+            delLoggedUser(loggedUser);
+            response = MHD_create_response_from_buffer(strlen(LOGIN_OK),
+                                                       LOGIN_OK,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
+        else
+        {
+            response = MHD_create_response_from_buffer(strlen(ALREADY_LOGGED_OUT),
+                                                       ALREADY_LOGGED_OUT,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
     }
-    key.key[128] = '\0';
-    key.lastAction = time(NULL);
-
-    return key;
+    else
+    {
+        response = MHD_create_response_from_buffer(strlen(LOGIN_BAD_METHOD),
+                                                   LOGIN_BAD_METHOD,
+                                                   MHD_RESPMEM_PERSISTENT);
+        ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
+        MHD_destroy_response(response);
+    }
+    return ret;
 }
 
-int addLoginKey(struct login_key key)
+int doLoginStatus(
+    struct MHD_Response *response,
+    struct MHD_Connection *connection,
+    const char *method,
+    void **con_cls)
 {
-    allLoginKeys = realloc(allLoginKeys, (allLoginKeysLen + 1) * sizeof(struct login_key));
-    if (allLoginKeys == NULL)
+    int ret;
+
+    if (strcmp(method, MHD_HTTP_METHOD_GET) == 0)
     {
-        fprintf(stderr, "addLoginKey: Unable to malloc (%d Bytes)\n", (allLoginKeysLen + 1) * sizeof(struct login_key));
+
+        /* Getting the client infos */
+        const union MHD_ConnectionInfo *connInfo = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+        struct sockaddr *client = *(struct sockaddr **)connInfo;
+        if (client->sa_family == AF_INET)
+        {
+            struct sockaddr_in *netClient = (struct sockaddr_in *)client;
+
+            /*
+        inet_ntop(AF_INET, &(netClient->sin_addr), clientBuffIP, DEFAULT_BUFFER_SIZE);
+        clientPort = netClient->sin_port;
+        */
+        }
+
+        if (IS_LOGGED(*client) == 1)
+        {
+            struct login_struct *loggedUser = getLoggedUser((union netAddress) * client);
+            delLoggedUser(loggedUser);
+            response = MHD_create_response_from_buffer(strlen(LOGIN_OK),
+                                                       LOGIN_OK,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
+        else
+        {
+            response = MHD_create_response_from_buffer(strlen(LOGIN_KO),
+                                                       LOGIN_KO,
+                                                       MHD_RESPMEM_PERSISTENT);
+            ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+            MHD_destroy_response(response);
+        }
+    }
+    else
+    {
+        response = MHD_create_response_from_buffer(strlen(LOGIN_BAD_METHOD),
+                                                   LOGIN_BAD_METHOD,
+                                                   MHD_RESPMEM_PERSISTENT);
+        ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
+        MHD_destroy_response(response);
+    }
+    return ret;
+}
+
+int addLoggedUser(union netAddress user)
+{
+    struct login_struct newUser;
+    newUser.loggedUser = user;
+    newUser.lastAction = time(NULL);
+
+    allLoggedUsers = realloc(allLoggedUsers, (allLoggedUsersLen + 1) * sizeof(struct login_struct));
+    if (allLoggedUsers == NULL)
+    {
+        fprintf(stderr, "addLoginKey: Unable to malloc (%d Bytes)\n", (allLoggedUsersLen + 1) * sizeof(struct login_struct));
         return 1;
     }
 
-    memcpy(allLoginKeys + allLoginKeysLen, &key, sizeof(struct login_key));
+    memcpy(allLoggedUsers + allLoggedUsersLen, &newUser, sizeof(struct login_struct));
 
     // Updating the datas
     //conf->all_routes = new_arr;
-    allLoginKeysLen++;
+    allLoggedUsersLen++;
 
     return 0;
 }
 
-int delLoginKey(struct login_key *key)
+int delLoggedUser(struct login_struct *user)
 {
-    struct login_key* finalList = malloc((allLoginKeysLen - 1) * sizeof(struct login_key));
-    int beforeLen = key - allLoginKeys;
-    int afterLen = allLoginKeysLen - beforeLen - 1;
+    struct login_struct *finalList = malloc((allLoggedUsersLen - 1) * sizeof(struct login_struct));
+    int beforeLen = user - allLoggedUsers;
+    int afterLen = allLoggedUsersLen - beforeLen - 1;
 
-    if(finalList == NULL)
+    if (finalList == NULL)
     {
-        fprintf(stderr, "delLoginKey: Unable to malloc size (%d Bytes)\n", (allLoginKeysLen - 1) * sizeof(struct login_key));
+        fprintf(stderr, "delLoginKey: Unable to malloc size (%d Bytes)\n", (allLoggedUsersLen - 1) * sizeof(struct login_struct));
         return 1;
     }
 
-    memcpy(finalList, allLoginKeys, beforeLen * sizeof(struct login_key));
+    memcpy(finalList, allLoggedUsers, beforeLen * sizeof(struct login_struct));
 
-    memcpy(finalList + beforeLen, allLoginKeys + beforeLen + 1, afterLen * sizeof(struct login_key));
+    memcpy(finalList + beforeLen, allLoggedUsers + beforeLen + 1, afterLen * sizeof(struct login_struct));
 
-    free(allLoginKeys);
-    allLoginKeys = finalList;
-    allLoginKeysLen--;
+    free(allLoggedUsers);
+    allLoggedUsers = finalList;
+    allLoggedUsersLen--;
 
     return 0;
 }
 
-struct login_key *getLoginKey(char key[129])
+struct login_struct *getLoggedUser(union netAddress user)
 {
-    for (int i = 0; i < allLoginKeysLen; i++)
+    for (int i = 0; i < allLoggedUsersLen; i++)
     {
-        struct login_key *currKey = allLoginKeys + i;
-        if (strcmp(currKey->key, key) == 0)
+        struct login_struct *currUser = allLoggedUsers + i;
+        if (compareAddress(user, currUser->loggedUser) == 0)
         {
-            return currKey;
+            return currUser;
         }
     }
     return NULL;
 }
 
-void clientUpdateLoginKeyAction(char strKey[129])
+void freeAllLoggedUsers()
 {
-    struct login_key* key = getLoginKey(strKey);
-    key->lastAction = time(NULL);
+    if (allLoggedUsersLen > 0)
+    {
+        free(allLoggedUsers);
+    }
+    allLoggedUsers = NULL;
+    allLoggedUsersLen = 0;
 }
 
-void freeAllLoginKeys()
+void loggedUserUpdateAction(struct login_struct *user)
 {
-    free(allLoginKeys);
-    allLoginKeysLen = 0;
+    user->lastAction = time(NULL);
+}
+
+int compareAddress(union netAddress left, union netAddress right)
+{
+    struct sockaddr *_left = (struct sockaddr *)&left;
+    struct sockaddr *_right = (struct sockaddr *)&right;
+
+    if (_left->sa_family == _right->sa_family)
+    {
+        switch (_left->sa_family)
+        {
+        case AF_INET:
+        {
+            struct sockaddr_in *__left = (struct sockaddr_in *)_left;
+            struct sockaddr_in *__right = (struct sockaddr_in *)_right;
+
+            if (__left->sin_addr.s_addr == __right->sin_addr.s_addr)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+            break;
+        }
+
+        case AF_INET6:
+        {
+            struct sockaddr_in6 *__left = (struct sockaddr_in6 *)_left;
+            struct sockaddr_in6 *__right = (struct sockaddr_in6 *)_right;
+
+            struct in6_addr leftAdr = __left->sin6_addr;
+            struct in6_addr rightAdr = __left->sin6_addr;
+            if (__left->sin6_port == __right->sin6_port)
+            {
+                if (memcmp(&leftAdr, &rightAdr, sizeof(struct in6_addr)) == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                return 1;
+            }
+
+            break;
+        }
+        default:
+            /* Non-géré */
+            return 2;
+        }
+    }
+    else
+    {
+        return 1;
+    }
 }

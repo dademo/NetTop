@@ -19,13 +19,6 @@
 
 #include "webserver.h"
 
-/**
- * Value that indicate if the server keep running
- */
-static int webServer_run = 1;
-static regex_t reg_login;
-static regex_t reg_login_redirect;
-
 int runWevServer(struct router_conf routerConf)
 {
   struct MHD_Daemon *daemon;
@@ -46,6 +39,27 @@ int runWevServer(struct router_conf routerConf)
     do_log("Unable to compile the login regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
+  if (get_regex(&reg_logout, "^/logout$", 1) != 0)
+  {
+    do_log("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
+    return 1;
+  }
+  if (get_regex(&reg_logout_redirect, "^/logout.+", 1) != 0)
+  {
+    do_log("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
+    return 1;
+  }
+  if (get_regex(&reg_login_status, "^/login/status$", 1) != 0)
+  {
+    do_log("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
+    return 1;
+  }
+  if (get_regex(&reg_login_status_redirect, "^/login/status.+", 1) != 0)
+  {
+    do_log("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
+    return 1;
+  }
+  
 
   /*daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &handleConnection, NULL, MHD_OPTION_END);*/
@@ -73,6 +87,8 @@ int runWevServer(struct router_conf routerConf)
 
   do_log("Stopping daemon", LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
 
+  static regex_t reg_logout;
+  static regex_t reg_logout_redirect;
   MHD_stop_daemon(daemon);
 
   return 0;
@@ -150,13 +166,29 @@ int handleConnection(void *cls,
     clientPort = netClient->sin6_port;
   }
 
-  if (regexec(&reg_login_redirect, url, 0, 0, 0) == 0)
+  if (regexec(&reg_login_status_redirect, url, 0, 0, 0) == 0)
+  {
+    ret = doRedirect("/login/status", response, connection);
+  }
+  else if (regexec(&reg_login_status, url, 0, 0, 0) == 0)
+  {
+    ret = doLoginStatus(response, connection, method, con_cls);
+  }
+  else if (regexec(&reg_login_redirect, url, 0, 0, 0) == 0)
   {
     ret = doRedirect("/login", response, connection);
   }
   else if (regexec(&reg_login, url, 0, 0, 0) == 0)
   {
-    ret = doLogin(response, connection, con_cls);
+    ret = doLogin(response, connection, method, upload_data, upload_data_size, con_cls);
+  }
+  else if (regexec(&reg_logout_redirect, url, 0, 0, 0) == 0)
+  {
+    ret = doRedirect("/logout", response, connection);
+  }
+  else if (regexec(&reg_logout, url, 0, 0, 0) == 0)
+  {
+    ret = doLogout(response, connection, method, upload_data, upload_data_size, con_cls);
   }
   else
   {

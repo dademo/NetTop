@@ -3,6 +3,17 @@
 
 #include "engine/router/router.h"
 
+/**
+ * Value that indicate if the server keep running
+ */
+static int webServer_run = 1;
+static regex_t reg_login;
+static regex_t reg_login_redirect;
+static regex_t reg_logout;
+static regex_t reg_logout_redirect;
+static regex_t reg_login_status;
+static regex_t reg_login_status_redirect;
+
 int handleConnection(void* cls,
                     struct MHD_Connection* connection,
                     const char* url,
