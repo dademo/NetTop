@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="config">
+        <CONFIG1>
+            <sub_elem1>TOTO</sub_elem1>
+            <sub_elem2>TATA</sub_elem2>
+        </CONFIG1>
+    </action>
+</message>

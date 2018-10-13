@@ -4,7 +4,7 @@
 #include <microhttpd.h>
 
 #include "router.h"
-#include "../../web/in_mods/mod_noRoute.h"
+#include "../in_mods/mod_noRoute/mod_noRoute.h"
 #include "../tools/log.h"
 #include "../tools/regex.h"
 #include "../config.h"

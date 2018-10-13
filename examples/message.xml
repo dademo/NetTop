@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--== Master query ==-->
+<message>
+    <action type="config">
+        <CONFIG1>
+            <sub_elem1>TOTO</sub_elem1>
+            <sub_elem2>TATA</sub_elem2>
+        </CONFIG1>
+    </action>
+</message>
+
+<!-- An other example -->
+<message>
+    <action type="sqlquery-select-result">
+        <query>
+            SELECT
+                *
+            FROM test
+            ;
+        </query>
+        <answer>
+            <row>
+                <value columnId="1" type="INTEGER" name="id">1</value>
+                <value columnId="2" type="VARCHAR" name="First Name">TOTO</value>
+                <value columnId="3" type="VARCHAR" name="Last Name">TUTU</value>
+            </row>
+            <row>
+                <value columnId="1" type="INTEGER" name="id">2</value>
+                <value columnId="2" type="VARCHAR" name="First Name">TATA</value>
+                <value columnId="3" type="VARCHAR" name="Last Name">TITI</value>
+            </row>
+        </answer>
+    </action>
+</message>
+
+<!-- An other example -->
+<message>
+    <action type="sqlquery-modif-result">
+        <query>
+            INSERT INTO test
+            VALUES (1,2,3)
+            ;
+        </query>
+        <answer>
+            <changes>1</changes>
+        </answer>
+    </action>
+</message>
+
+
+<!--== Module query ==-->
+<!-- An other example -->
+<message>
+    <action type="sqlquery-select-query">
+        <query>
+            SELECT
+                *
+            FROM test
+            ;
+        </query>
+    </action>
+</message>
+
+<!-- An other example -->
+<message>
+    <action type="sqlquery-modif-query">
+        <query>
+            INSERT INTO test
+            VALUES (1,2,3)
+            ;
+        </query>
+    </action>
+</message>
+
+<!-- An other example -->
+<message>
+    <action type="config-query">
+        <configQueryName>CONFIG1</config>
+        <configQueryName>CONFIG2</config>
+    </action>
+</message>
+
+<!-- An other example -->
+<message>
+    <action type="log">
+        <logLevel>ERROR</logLevel>
+        <text>This is an error !!!</text>
+    </action>
+</message>

@@ -12,10 +12,8 @@
 #include "config.h"
 #include "engine/config.h"
 #include "engine/tools/log.h"
-#include "web/in_mods/mod_login.h"
+#include "engine/in_mods/mod_login/mod_login.h"
 #include "engine/tools/regex.h"
-
-#include "web/in_mods/mod_login.h"
 
 #include "webserver.h"
 
@@ -64,7 +62,7 @@ int runWevServer(struct router_conf routerConf)
   /*daemon = MHD_start_daemon(MHD_USE_DEBUG | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &handleConnection, NULL, MHD_OPTION_END);*/
   daemon = MHD_start_daemon(
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG
       MHD_USE_DEBUG |
 #endif
           MHD_USE_THREAD_PER_CONNECTION |
@@ -258,7 +256,7 @@ int doRedirect(char *target, struct MHD_Response *response, struct MHD_Connectio
   /* https://stackoverflow.com/questions/24386128/implement-http-302-response-with-libmicrohttpd-in-c */
   response = MHD_create_response_from_buffer(strlen(REDIRECT), (void *)REDIRECT, MHD_RESPMEM_PERSISTENT);
   MHD_add_response_header(response, "Location", target);
-  ret = MHD_queue_response(connection, MHD_HTTP_MOVED_PERMANENTLY, response);
+  ret = MHD_queue_response(connection, MHD_HTTP_PERMANENT_REDIRECT, response);
 
   MHD_destroy_response(response);
 

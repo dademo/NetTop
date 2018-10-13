@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="sqlquery-select-result">
+        <query>
+            SELECT
+                *
+            FROM test
+            ;
+        </query>
+        <answer>
+            <row>
+                <value columnId="1" type="INTEGER" name="id">1</value>
+                <value columnId="2" type="TEXT" name="First Name">TOTO</value>
+                <value columnId="3" type="REAL" name="Last Name">TUTU</value>
+            </row>
+            <row>
+                <value columnId="1" type="BLOB" name="id">2</value>
+                <value columnId="2" type="NULL" name="First Name">TATA</value>
+                <value columnId="3" type="TEXT" name="Last Name">TITI</value>
+            </row>
+        </answer>
+    </action>
+</message>

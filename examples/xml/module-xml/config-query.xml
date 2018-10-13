@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="config-query">
+        <configQueryName>CONFIG1</configQueryName>
+        <configQueryName>CONFIG2</configQueryName>
+    </action>
+</message>

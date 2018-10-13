@@ -11,9 +11,9 @@
 
 #include "engine/tools/log.h"
 
-#include "web/config.h"
+#include "engine/out_mods/config.h"
 
-#include "web/in_mods/mod_login.h"
+#include "engine/in_mods/mod_login/mod_login.h"
 
 void dynamicMem();
 

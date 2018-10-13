@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="sqlquery-modif-query">
+        <query>
+            INSERT INTO test
+            VALUES (1,2,3)
+            ;
+        </query>
+    </action>
+</message>

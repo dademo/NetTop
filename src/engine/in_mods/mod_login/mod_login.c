@@ -5,7 +5,7 @@
 #include <microhttpd.h>
 
 #include "mod_login.h"
-#include "../../engine/router/router.h"
+#include "../../../engine/router/router.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -219,6 +219,11 @@ int doLoginStatus(
         MHD_destroy_response(response);
     }
     return ret;
+}
+
+int findUser(char* user, char* password)
+{
+    return 0;
 }
 
 int addLoggedUser(union netAddress user)

@@ -137,7 +137,7 @@ void _do_log(FILE *fildes, const char *msg, enum log_level level)
         fprintf(stderr, "_do_log: Unable to generate date. Aborting\n");
         return;
     }
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG
     if (level & LOG_LEVEL_DEBUG)
     {
         fprintf(fildes, SHELL_FONT_BOLD SHELL_FOREGROUND_BLUE "[%s]" SHELL_FOREGROUND_LIGHT_CYAN " DEBUG:\t%s" SHELL_ALL_RESET "\n", buffer, msg);

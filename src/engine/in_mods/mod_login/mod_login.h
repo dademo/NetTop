@@ -4,13 +4,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "../../engine/router/router.h"
+//#include "../../../engine/router/router.h"
 
 #define IS_LOGGED(user) ((getLoggedUser((union netAddress)user) != NULL) ? 1 : 0)
 
-#define PAGE "<html><head><title>libmicrohttpd demo</title></head><body>Access granted</body></html>"
-#define DENIED "<html><head><title>libmicrohttpd demo</title></head><body>Access denied</body></html>"
-#define LOGOUT "<html><head><title>libmicrohttpd demo</title></head><body>Logout</body></html>"
 #define ALREADY_LOGGED_IN "Already logged in"
 #define ALREADY_LOGGED_OUT "Already logged out"
 #define LOGIN_OK "OK"
@@ -55,6 +52,9 @@ int doLoginStatus(
     struct MHD_Connection *connection,
     const char *method,
     void **con_cls);
+
+
+int findUser(char* user, char* password);
 
 int addLoggedUser(union netAddress user);
 

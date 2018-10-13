@@ -6,6 +6,8 @@ include (cmake/FindMicroHttpd.cmake)
 
 SET(EXEC_NAME ${PROJECT_NAME})
 
+SET(CMAKE_MODULE_PATH cmake)
+
 # Options
 
 # Debug
@@ -43,14 +45,14 @@ FILE(
 
 FILE(
     GLOB
-    web_in_mods_sources
-    src/web/in_mods/*.c
+    in_mods_sources
+    src/engine/in_mods/*/*.c
 )
 
 FILE(
     GLOB
-    web_in_mods_headers
-    src/web/in_mods/*.h
+    in_mods_headers
+    src/engine/in_mods/*/*.h
 )
 
 # Ajout des modules système
@@ -85,10 +87,10 @@ ENDFOREACH(MODULE)
 SET( ALL_SRC
     ${base_sources}
     ${base_headers}
+    ${in_mods_sources}
+    ${in_mods_headers}
     ${web_sources}
     ${web_headers}
-    ${web_in_mods_sources}
-    ${web_in_mods_headers}
     ${modules_sources}
     ${modules_headers}
     )
@@ -97,7 +99,7 @@ SET( ALL_SRC
 add_executable(${EXEC_NAME} "${ALL_SRC}")
 
 IF(DEBUG)
-    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC DEBUG_ENABLED)
+    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC DEBUG)
     MESSAGE(STATUS "Debug enabled")
 ENDIF(DEBUG)
 
@@ -111,6 +113,12 @@ target_link_libraries(${EXEC_NAME} Threads::Threads)
 
 find_package (GnuTLS)
 target_link_libraries(${EXEC_NAME} gnutls)
+
+find_package (Ldap)
+target_link_libraries(${EXEC_NAME} ldap)
+
+find_package (LibXml2)
+target_link_libraries(${EXEC_NAME} xml2)
 
 
 IF(MICROHTTPD_FOUND)
