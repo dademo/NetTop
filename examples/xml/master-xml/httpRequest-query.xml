@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="httpRequest-query">
+        <query type="POST">
+            <path>/toto</path>
+            <headers>
+                <Accept>text/html</Accept>
+                <Accept-Charset>utf-8</Accept-Charset>
+                <Accept-Language>en-US</Accept-Language>
+                <User-Agent>Mozilla/5.0 (X11; Linux x86_64…) Gecko/20100101 Firefox/60.0</User-Agent>
+            </headers>
+            <post-args>
+                <arg name="toto"></arg>
+            </post-args>
+        </query>
+    </action>
+</message>

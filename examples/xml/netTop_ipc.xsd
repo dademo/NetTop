@@ -32,6 +32,7 @@
                     <xsd:enumeration value="sqlquery-select-result"/>
                     <xsd:enumeration value="sqlquery-modif-result"/>
                     <xsd:enumeration value="sqlquery-error-result"/>
+                    <xsd:enumeration value="httpRequest-query"/>
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:attribute>
