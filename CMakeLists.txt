@@ -14,9 +14,10 @@ SET(CMAKE_MODULE_PATH cmake)
 OPTION(DEBUG, "To enable debug on the executable. Default: OFF" OFF)
 
 SET(
-    MODULES
+    CONFIG_MODULES
     router
     tools
+    config
 )
 
 FILE(
@@ -56,33 +57,41 @@ FILE(
 )
 
 # Ajout des modules système
-FOREACH(MODULE ${MODULES})
+FOREACH(CONFIG_MODULE ${CONFIG_MODULES})
     # Recherche des fichiers pour le module
     FILE(
         GLOB_RECURSE
-        ${MODULE}_sources
-        src/engine/*.c
+        ${CONFIG_MODULE}_sources
+        src/engine/${CONFIG_MODULE}/*.c
     )
 
     FILE(
         GLOB_RECURSE
-        ${MODULE}_headers
-        src/engine/*.h
+        ${CONFIG_MODULE}_headers
+        src/engine/${CONFIG_MODULE}/*.h
+    )
+
+    MESSAGE(STATUS "CONFIG_MODULE: ${CONFIG_MODULE}")
+    MESSAGE(STATUS "sources: ${${CONFIG_MODULE}_sources}")
+    MESSAGE(STATUS "headers: ${${CONFIG_MODULE}_headers}")
+
+    SET(
+        config_modules_sources
+        ${config_modules_sources}
+        ${${CONFIG_MODULE}_sources}
     )
 
     SET(
-        modules_sources
-        ${modules_sources}
-        ${${MODULE}_sources}
+        config_modules_headers
+        ${config_modules_headers}
+        ${${CONFIG_MODULE}_headers}
     )
+ENDFOREACH(CONFIG_MODULE)
 
-    SET(
-        modules_headers
-        ${modules_headers}
-        ${${MODULE}_headers}
-    )
-ENDFOREACH(MODULE)
-
+MESSAGE(STATUS "--")
+MESSAGE(STATUS "config_modules_sources: ${config_modules_sources}")
+MESSAGE(STATUS "config_modules_headers: ${config_modules_headers}")
+MESSAGE(STATUS "--")
 
 SET( ALL_SRC
     ${base_sources}
@@ -91,19 +100,14 @@ SET( ALL_SRC
     ${in_mods_headers}
     ${web_sources}
     ${web_headers}
-    ${modules_sources}
-    ${modules_headers}
-    )
+    ${config_modules_sources}
+    ${config_modules_headers}
+)
 
 
 add_executable(${EXEC_NAME} "${ALL_SRC}")
 
-IF(DEBUG)
-    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC DEBUG)
-    MESSAGE(STATUS "Debug enabled")
-ENDIF(DEBUG)
-
-EXECUTE_PROCESS(COMMAND scripts/web_modules.bash OUTPUT_FILE src/web/config.h)
+#EXECUTE_PROCESS(COMMAND scripts/web_modules.bash OUTPUT_FILE src/web/config.h)
 
 # Pthread
 # https://stackoverflow.com/questions/1620918/cmake-and-libpthread
@@ -111,13 +115,13 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(${EXEC_NAME} Threads::Threads)
 
-find_package (GnuTLS)
+find_package (GnuTLS REQUIRED)
 target_link_libraries(${EXEC_NAME} gnutls)
 
-find_package (Ldap)
+find_package (Ldap REQUIRED)
 target_link_libraries(${EXEC_NAME} ldap)
 
-find_package (LibXml2)
+find_package (LibXml2 REQUIRED)
 target_link_libraries(${EXEC_NAME} xml2)
 
 
@@ -127,3 +131,17 @@ IF(MICROHTTPD_FOUND)
 ELSE()
     MESSAGE(FATAL_ERROR "microhttpd not found !")
 ENDIF()
+
+
+IF(LIBXML2_FOUND)
+    INCLUDE_DIRECTORIES(BEFORE ${LIBXML2_INCLUDE_DIR})
+    MESSAGE(STATUS "libxml2: ${LIBXML2_INCLUDE_DIR}")
+ELSE()
+    MESSAGE(FATAL_ERROR "libxml2 not found !")
+ENDIF(LIBXML2_FOUND)
+
+
+IF(DEBUG)
+    TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC DEBUG)
+    MESSAGE(STATUS "Debug enabled")
+ENDIF(DEBUG)

@@ -15,11 +15,15 @@
 
 #include "engine/in_mods/mod_login/mod_login.h"
 
+#include "engine/config/config.h"
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
+
+  readConf("conf.xml");
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);

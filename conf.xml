@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <module>...</module>
+    </modules>
+    <auth>
+        <ldap>
+            <host>devsrv3.local</host>
+            <port>389</port>
+            <basedn>dc=dademodev,dc=local</basedn>
+            <userdn>ou=Users,dc=dademodev,dc=local</userdn>
+            <groupdn>ou=Groups,dc=dademodev,dc=local</groupdn>
+        </ldap>
+        <static>
+            <user>
+                <name>dademo</name>
+                <password type="clear">test</password>
+                <groups>
+                    <group>users</group>
+                    <group>netTop</group>
+                </groups>
+            </user>
+            <user>
+                <name>toto</name>
+                <password type="sha1">4e1243bd22c66e76c2ba9eddc1f91394e57f9f83</password>
+                <groups>
+                    <group>users</group>
+                    <group>netTop</group>
+                    <group>admin</group>
+                </groups>
+            </user>
+        </static>
+    </auth>
+    <system>
+        <test/>
+    </system>
+    <process>
+        <test2/>
+    </process>
+</config>
