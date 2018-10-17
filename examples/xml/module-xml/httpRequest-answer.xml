@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <action type="httpRequest-query">
+        <answer>
+            <code>200</code>
+            <headers>
+                <Content-Type>text/html</Content-Type>
+                <Content-Language>en-US</Content-Language>
+            </headers>
+            <body>
+                ...
+            </body>
+        </answer>
+    </action>
+</message>

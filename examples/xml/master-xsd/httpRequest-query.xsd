@@ -32,11 +32,11 @@
 
 
     <xsd:complexType name="queryType">
-        <xsd:sequence>
+        <xsd:all>
             <xsd:element name="path" type="xsd:string" minOccurs="1" maxOccurs="1" />
             <xsd:element name="headers" type="headersType" minOccurs="1" maxOccurs="1" />
             <xsd:element name="post-args" type="postArgsType" minOccurs="0" maxOccurs="1" />
-        </xsd:sequence>
+        </xsd:all>
         <xsd:attribute name="type">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:string">
@@ -49,12 +49,12 @@
 
 
     <xsd:complexType name="headersType">
-        <xsd:sequence>
+        <xsd:all>
             <xsd:element name="Accept" type="xsd:string" minOccurs="1" maxOccurs="1" />
             <xsd:element name="Accept-Charset" type="xsd:string" minOccurs="1" maxOccurs="1" />
             <xsd:element name="Accept-Language" type="xsd:string" minOccurs="1" maxOccurs="1" />
             <xsd:element name="User-Agent" type="xsd:string" minOccurs="1" maxOccurs="1" />
-        </xsd:sequence>
+        </xsd:all>
     </xsd:complexType>
 
 
