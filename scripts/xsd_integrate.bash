@@ -14,7 +14,8 @@ function genBody() {
 				errecho "file: ${fileName}"
 				file=$(cat "${fileName}" | sed -e 's/$/\\/g; s/"/\\"/g')
 				var=$(echo "${fileName}" | sed -E 's/.*\///g; s/(\.|-)/_/g;')
-				echo -e "const char ${var}[] = \"\\\\\n${file}\n\";\n";
+				pre_var=$(echo ${xsd_dir} | sed -E 's/.*\///g; s/-.*//g')
+				echo -e "static const char const globalData_${pre_var}_${var}[] = \"\\\\\n${file}\n\";\n";
 			done
 		fi
 	done

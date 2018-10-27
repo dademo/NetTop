@@ -1,10 +1,10 @@
 #ifndef XSD_DATA_H_INCLUDED
 #define XSD_DATA_H_INCLUDED
-#define GENERATION_DATE "2018-10-27 14:44:22"
+#define GENERATION_DATE "2018-10-27 22:56:24"
 
 // dir: ../examples/xml/master-xsd
 // file: ../examples/xml/master-xsd/config.xsd
-const char config_xsd[] = "\
+static const char const globalData_master_config_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -40,7 +40,7 @@ const char config_xsd[] = "\
 </xsd:schema>\n";
 
 // file: ../examples/xml/master-xsd/httpRequest-query.xsd
-const char httpRequest_query_xsd[] = "\
+static const char const globalData_master_httpRequest_query_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -119,7 +119,7 @@ const char httpRequest_query_xsd[] = "\
 </xsd:schema>\n";
 
 // file: ../examples/xml/master-xsd/sqlquery-error.xsd
-const char sqlquery_error_xsd[] = "\
+static const char const globalData_master_sqlquery_error_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -165,7 +165,7 @@ const char sqlquery_error_xsd[] = "\
 </xsd:schema>\n";
 
 // file: ../examples/xml/master-xsd/sqlquery-modif-result.xsd
-const char sqlquery_modif_result_xsd[] = "\
+static const char const globalData_master_sqlquery_modif_result_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -233,7 +233,7 @@ const char sqlquery_modif_result_xsd[] = "\
 </xsd:schema>\n";
 
 // file: ../examples/xml/master-xsd/sqlquery-select-result.xsd
-const char sqlquery_select_result_xsd[] = "\
+static const char const globalData_master_sqlquery_select_result_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -313,9 +313,9 @@ const char sqlquery_select_result_xsd[] = "\
 \
 </xsd:schema>\n";
 
-// dir: ../examples/xml/module-xsd
-// file: ../examples/xml/module-xsd/config-query.xsd
-const char config_query_xsd[] = "\
+// dir: ../examples/xml/slave-xsd
+// file: ../examples/xml/slave-xsd/config-query.xsd
+static const char const globalData_slave_config_query_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -350,8 +350,8 @@ const char config_query_xsd[] = "\
 \
 </xsd:schema>\n";
 
-// file: ../examples/xml/module-xsd/httpRequest-answer.xsd
-const char httpRequest_answer_xsd[] = "\
+// file: ../examples/xml/slave-xsd/httpRequest-answer.xsd
+static const char const globalData_slave_httpRequest_answer_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -401,8 +401,8 @@ const char httpRequest_answer_xsd[] = "\
 \
 </xsd:schema>\n";
 
-// file: ../examples/xml/module-xsd/log.xsd
-const char log_xsd[] = "\
+// file: ../examples/xml/slave-xsd/log.xsd
+static const char const globalData_slave_log_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -423,10 +423,10 @@ const char log_xsd[] = "\
 \
 \
     <xsd:complexType name=\"actionType\">\
-        <xsd:sequence>\
-            <xsd:element name=\"logLevel\" type=\"logLevelType\" minOccurs=\"1\" maxOccurs=\"1\"/>\
+        <xsd:all>\
+            <xsd:element name=\"logLevels\" type=\"logLevelsType\" minOccurs=\"1\" maxOccurs=\"1\"/>\
             <xsd:element name=\"text\" type=\"xsd:string\" minOccurs=\"1\" maxOccurs=\"1\"/>\
-        </xsd:sequence>\
+        </xsd:all>\
         <xsd:attribute name=\"type\">\
             <xsd:simpleType>\
                 <xsd:restriction base=\"xsd:string\">\
@@ -434,6 +434,12 @@ const char log_xsd[] = "\
                 </xsd:restriction>\
             </xsd:simpleType>\
         </xsd:attribute>\
+    </xsd:complexType>\
+\
+    <xsd:complexType name=\"logLevelsType\">\
+        <xsd:sequence>\
+            <xsd:element name=\"logLevel\" type=\"logLevelType\" minOccurs=\"1\" maxOccurs=\"unbounded\" />\
+        </xsd:sequence>\
     </xsd:complexType>\
 \
     <xsd:simpleType name=\"logLevelType\">\
@@ -448,8 +454,8 @@ const char log_xsd[] = "\
 \
 </xsd:schema>\n";
 
-// file: ../examples/xml/module-xsd/sqlquery-modif-query.xsd
-const char sqlquery_modif_query_xsd[] = "\
+// file: ../examples/xml/slave-xsd/sqlquery-modif-query.xsd
+static const char const globalData_slave_sqlquery_modif_query_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\
@@ -484,8 +490,8 @@ const char sqlquery_modif_query_xsd[] = "\
 \
 </xsd:schema>\n";
 
-// file: ../examples/xml/module-xsd/sqlquery-select-query.xsd
-const char sqlquery_select_query_xsd[] = "\
+// file: ../examples/xml/slave-xsd/sqlquery-select-query.xsd
+static const char const globalData_slave_sqlquery_select_query_xsd[] = "\
 <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\
 \
     <xsd:annotation>\

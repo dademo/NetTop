@@ -118,6 +118,17 @@ void do_log(const char *msg, enum log_level level)
     return;
 }
 
+void _do_log2(const char *msg, enum log_level level, const char *file, int line, const char *function)
+{
+    char *tmpBuff = malloc(strlen(msg) * sizeof(char) + 2048 * sizeof(char));
+    if (tmpBuff != NULL)
+    {
+        sprintf(tmpBuff, "%s:%d:%s: %s", file, line, function, msg);
+        do_log(tmpBuff, level);
+        free(tmpBuff);
+    }
+}
+
 /**
  * Log the given message (if msg is not null)
  * 

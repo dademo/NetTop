@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 /* defs */
 #include "xml_structures.h"
+#include "xsd_data.h"
 /* tools */
 #include "ipc_tools.h"
 
@@ -415,6 +416,243 @@ const char *
 stringify_xml_slave_sqlQuerySelectQuery(
     struct xml_slave_sqlQuerySelectQuery sqlQuerySelectQuery)
 {
+}
+
+/* Parsers */
+/* Master */
+int parse_xml_master_config(
+    struct xml_master_config *config,
+    const char *const rawXml)
+{
+    const char* configName;
+    const char* inConfig;
+
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_master_config_xsd) == 0)
+    {
+        do_log("parse_xml_master_config: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+    
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_master_httpRequestQuery(
+    struct xml_master_httpRequestQuery *httpRequestQuery,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_master_httpRequest_query_xsd) == 0)
+    {
+        do_log("parse_xml_master_httpRequestQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_master_sqlQueryError(
+    struct xml_master_sqlQueryError *sqlQueryError,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_error_xsd) == 0)
+    {
+        do_log("parse_xml_master_sqlQueryError: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_master_sqlQueryModifResult(
+    struct xml_master_sqlQueryModifResult *sqlQueryModifResult,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_modif_result_xsd) == 0)
+    {
+        do_log("parse_xml_master_sqlQueryModifResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_master_sqlQuerySelectResult(
+    struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_select_result_xsd) == 0)
+    {
+        do_log("parse_xml_master_sqlQuerySelectResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+/* Slave */
+int parse_xml_slave_configQuery(
+    struct xml_slave_configQuery *configQuery,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_slave_config_query_xsd) == 0)
+    {
+        do_log("parse_xml_slave_configQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_slave_httpRequestAnswer(
+    struct xml_slave_httpRequestAnswer *httpRequestAnswer,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_slave_httpRequest_answer_xsd) == 0)
+    {
+        do_log("parse_xml_slave_httpRequestAnswer: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_slave_log(
+    struct xml_slave_log *log,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_slave_log_xsd) == 0)
+    {
+        do_log("parse_xml_slave_log: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_slave_sqlQueryModifQuery(
+    struct xml_slave_sqlQueryModifQuery *sqlQueryModifQuery,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_slave_sqlquery_modif_query_xsd) == 0)
+    {
+        do_log("parse_xml_slave_sqlQueryModifQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
+}
+
+int parse_xml_slave_sqlQuerySelectQuery(
+    struct xml_slave_sqlQuerySelectQuery *sqlQuerySelectQuery,
+    const char *const rawXml)
+{
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (xml_apply_xsd(doc, globalData_slave_sqlquery_select_query_xsd) == 0)
+    {
+        do_log("parse_xml_slave_sqlQuerySelectQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    /* Parsing the file */
+
+    xmlFreeDoc(doc);
 }
 
 /* Free */

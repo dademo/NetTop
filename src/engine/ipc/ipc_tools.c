@@ -2,8 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ipc_tools.h"
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xinclude.h>
+#include <libxml/xmlIO.h>
+#include <libxml/xmlschemas.h>
+#include <libxml/xpath.h>
+
+#include "../tools/log.h"
 #include "xml_structures.h"
+#include "ipc_tools.h"
 
 void _strMallocCpy(
     const char **dst,
@@ -64,7 +72,8 @@ _getSQLiteType(
     }
 }
 
-const char *const _getSQLiteTypeString(enum SQLITE_DATA_TYPES dataType)
+const char *const
+_getSQLiteTypeString(enum SQLITE_DATA_TYPES dataType)
 {
     switch (dataType)
     {
@@ -87,4 +96,163 @@ const char *const _getSQLiteTypeString(enum SQLITE_DATA_TYPES dataType)
         return "";
         break;
     }
+}
+
+int xml_apply_xsd(
+    const xmlDocPtr doc,
+    const char *rawXsd)
+{
+    //xmlDocPtr doc = NULL;
+    xmlSchemaParserCtxtPtr schemaParserCtxt = NULL;
+    xmlSchemaPtr parsedSchema = NULL;
+    xmlSchemaValidCtxtPtr validationContext = NULL;
+    int validateDoc;
+
+    /* Parsing the input xml */
+    /*doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    if (doc == NULL)
+    {
+        fprintf(stderr, "Unable to open XML file\n");
+        _xmlDoClean(
+            doc,
+            schemaParserCtxt,
+            parsedSchema,
+            validationContext);
+        return 1;
+    }*/
+    // Getting the schema structure
+    schemaParserCtxt = xmlSchemaNewMemParserCtxt(rawXsd, strlen(rawXsd));
+    if (schemaParserCtxt == NULL)
+    {
+        do_log("Unable to open XSD file", LOG_LEVEL_ERROR);
+        _xmlDoClean(
+            schemaParserCtxt,
+            parsedSchema,
+            validationContext);
+        return 1;
+    }
+    parsedSchema = xmlSchemaParse(schemaParserCtxt);
+    if (parsedSchema == NULL)
+    {
+        do_log("Unable to parse XSD file", LOG_LEVEL_ERROR);
+        _xmlDoClean(
+            schemaParserCtxt,
+            parsedSchema,
+            validationContext);
+        return 1;
+    }
+    validationContext = xmlSchemaNewValidCtxt(parsedSchema);
+    if (validationContext == NULL)
+    {
+        do_log("Unable to create validation context with XSD file", LOG_LEVEL_ERROR);
+        _xmlDoClean(
+            schemaParserCtxt,
+            parsedSchema,
+            validationContext);
+        return 1;
+    }
+    validateDoc = xmlSchemaValidateDoc(validationContext, doc);
+    if (validateDoc != 0)
+    {
+        _xmlDoClean(
+            schemaParserCtxt,
+            parsedSchema,
+            validationContext);
+        if (validateDoc < 0)
+        {
+            do_log("libxml2 internal error", LOG_LEVEL_ERROR);
+            return 1;
+        }
+        if (validateDoc > 0)
+        {
+            do_log("XML file validation error", LOG_LEVEL_ERROR);
+            return 1;
+        }
+    }
+
+    xmlSchemaFreeParserCtxt(schemaParserCtxt);
+    xmlSchemaFree(parsedSchema);
+    xmlSchemaFreeValidCtxt(validationContext);
+    return 0;
+}
+
+void _xmlDoClean(
+    xmlSchemaParserCtxtPtr schemaParserCtxt,
+    xmlSchemaPtr parsedSchema,
+    xmlSchemaValidCtxtPtr validationContext)
+{
+    if (schemaParserCtxt != NULL)
+    {
+        xmlSchemaFreeParserCtxt(schemaParserCtxt);
+    }
+    if (parsedSchema != NULL)
+    {
+        xmlSchemaFree(parsedSchema);
+    }
+    if (validationContext != NULL)
+    {
+        xmlSchemaFreeValidCtxt(validationContext);
+    }
+}
+
+int extractSubDocument(
+    const char **outBuff,
+    char *xpathExpr,
+    xmlDocPtr doc,
+    int resultRequired,
+    char *baseNodeName)
+{
+    xmlXPathContextPtr xpathCtx = NULL;
+    xmlXPathObjectPtr xpathObj = NULL;
+    xmlDocPtr newDoc = NULL;
+    xmlNodePtr newDocBase = NULL;
+    unsigned char *xmlBuff = NULL;
+    int xmlBuffSize = 0;
+
+    xpathCtx = xmlXPathNewContext(doc);
+    if (xpathCtx == NULL)
+    {
+        do_log("Unable to create xpathCtx", LOG_LEVEL_ERROR);
+        return 0;
+    }
+
+    xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
+    if (xpathObj == NULL && resultRequired == 1)
+    {
+        do_log("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
+        xmlXPathFreeContext(xpathCtx);
+        return 0;
+    }
+
+    /* Copying the whole content */
+    newDoc = xmlNewDoc("1.0");
+    newDocBase = xmlNewNode(NULL, baseNodeName);
+    xmlDocSetRootElement(newDoc, newDocBase);
+    for (int i = 0; i < xpathObj->nodesetval->nodeNr; i++)
+    {
+        if (xpathObj->nodesetval->nodeTab[i] != NULL)
+        {
+            xmlAddChildList(newDocBase, xmlCopyNodeList(xpathObj->nodesetval->nodeTab[i]));
+        }
+    }
+    xmlDocDumpFormatMemory(newDoc, &xmlBuff, &xmlBuffSize, 0);
+
+    *outBuff = malloc(xmlBuffSize * sizeof(unsigned char));
+
+    if (*outBuff == NULL)
+    {
+        do_log2("Unable to malloc", LOG_LEVEL_ERROR);
+
+        xmlFree(xmlBuff);
+        xmlXPathFreeObject(xpathObj);
+        xmlXPathFreeContext(xpathCtx);
+        return 0;
+    }
+
+    _strMallocCpy(outBuff, xmlBuff);
+
+    xmlFree(xmlBuff);
+    xmlXPathFreeObject(xpathObj);
+    xmlXPathFreeContext(xpathCtx);
+    return 0;
 }

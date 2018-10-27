@@ -19,27 +19,40 @@
 
 #include "engine/config/config.h"
 
+#include "engine/ipc/ipc_tools.h"
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
-  
-  /*
-  struct xml_master_config master_config;
-  *((const char**) &(master_config.actionType)) = xml_master_config_str;
-
-  printf("%s\n", master_config.actionType);
-  */
-  
 
   readConf("conf.xml");
+
+/*
+  const char* out = NULL;
+  xmlDocPtr doc = xmlParseFile("conf.xml");
+  int res = extractSubDocument(&out, "/config/modules-config/*", doc, 1, "config");
+  if (res != 0)
+  {
+    do_log("main", LOG_LEVEL_ERROR);
+  }
+  else
+  {
+    printf("%s\n", out);
+  }
+  if (out != NULL)
+  {
+    _FREE(out);
+  }
+  xmlFreeDoc(doc);
+  */
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);
   add_log_target("/dev/stderr", LOG_LEVEL_DEBUG | LOG_LEVEL_WARNING | LOG_LEVEL_ERROR);
 
-  do_log("Hello World !", LOG_ALL | LOG_LEVEL_DEBUG);
+  do_log2("Hello World !", LOG_ALL | LOG_LEVEL_DEBUG);
 
   /*
   long double size = 1000;

@@ -33,14 +33,6 @@ enum SQLITE_DATA_TYPES
     SQLITE_DATA_TYPES_UNDEFINED
 };
 
-/* Log levels */
-static const char *LOG_LEVEL_DEBUG_STR = "DEBUG";
-static const char *LOG_LEVEL_INFO_STR = "INFO";
-static const char *LOG_LEVEL_NOTICE_STR = "NOTICE";
-static const char *LOG_LEVEL_WARNING_STR = "WARNING";
-static const char *LOG_LEVEL_ERROR_STR = "ERROR";
-
-
 /* Structs */
 /* Master */
 
@@ -213,8 +205,7 @@ mkhttpRequestQuery(
     const char *accept_language,
     const char *user_agent);
 
-int
-mkhttpRequestQuery_addPostArg(
+int mkhttpRequestQuery_addPostArg(
     struct xml_master_httpRequestQuery *httpRequestQuery,
     const char *arg_name,
     const char *arg);
@@ -227,15 +218,14 @@ mkSqlQueryError(
 
 struct xml_master_sqlQueryModifResult
 mkSqlQueryModifResult(
-    const char* query,
-    unsigned int changes
-);
+    const char *query,
+    unsigned int changes);
 
 struct xml_master_sqlQuerySelectResult_rowValue
 mkSqlQuerySelectResultRowValue(
     unsigned int columnId,
     enum SQLITE_DATA_TYPES dataType,
-    const char* colName,
+    const char *colName,
     const char *data);
 
 struct xml_master_sqlQuerySelectResult_row
@@ -245,26 +235,22 @@ struct xml_master_sqlQuerySelectResult
 mkSqlQuerySelectResult(
     const char *query);
 
-int
-mkSqlQuerySelectResultRowValue_addRowValue(
+int mkSqlQuerySelectResultRowValue_addRowValue(
     struct xml_master_sqlQuerySelectResult_row *sqlQuerySelectResultRow,
     unsigned int columnId,
     const char *dataType,
-    const char* colName,
+    const char *colName,
     const char *data);
 
-int
-mkSqlQuerySelectResult_addRow(
-    struct xml_master_sqlQuerySelectResult* sqlQuerySelectResult,
-    struct xml_master_sqlQuerySelectResult_row sqlQuerySelectResultRow
-);
+int mkSqlQuerySelectResult_addRow(
+    struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult,
+    struct xml_master_sqlQuerySelectResult_row sqlQuerySelectResultRow);
 
 /* Slave */
 struct xml_slave_configQuery
 mkConfigQuery();
 
-int
-addConfigQuery(
+int addConfigQuery(
     struct xml_slave_configQuery *configQuery,
     const char *configQueryStr);
 
@@ -295,8 +281,8 @@ stringify_xml_master_config(
     struct xml_master_config config);
 
 const char *
-    stringify_xml_master_httpRequestQuery(
-        struct xml_master_httpRequestQuery httpRequestQuery);
+stringify_xml_master_httpRequestQuery(
+    struct xml_master_httpRequestQuery httpRequestQuery);
 
 const char *
 stringify_xml_master_sqlQueryError(
@@ -329,77 +315,105 @@ const char *
 stringify_xml_slave_sqlQuerySelectQuery(
     struct xml_slave_sqlQuerySelectQuery sqlQuerySelectQuery);
 
+/* Parsers */
+/* Master */
+int parse_xml_master_config(
+    struct xml_master_config *config,
+    const char *const rawXml);
+
+int parse_xml_master_httpRequestQuery(
+    struct xml_master_httpRequestQuery *httpRequestQuery,
+    const char *const rawXml);
+
+int parse_xml_master_sqlQueryError(
+    struct xml_master_sqlQueryError *sqlQueryError,
+    const char *const rawXml);
+
+int parse_xml_master_sqlQueryModifResult(
+    struct xml_master_sqlQueryModifResult *sqlQueryModifResult,
+    const char *const rawXml);
+
+int parse_xml_master_sqlQuerySelectResult(
+    struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult,
+    const char *const rawXml);
+
+/* Slave */
+int parse_xml_slave_configQuery(
+    struct xml_slave_configQuery *configQuery,
+    const char *const rawXml);
+
+int parse_xml_slave_httpRequestAnswer(
+    struct xml_slave_httpRequestAnswer *httpRequestAnswer,
+    const char *const rawXml);
+
+int parse_xml_slave_log(
+    struct xml_slave_log *log,
+    const char *const rawXml);
+
+int parse_xml_slave_sqlQueryModifQuery(
+    struct xml_slave_sqlQueryModifQuery *sqlQueryModifQuery,
+    const char *const rawXml);
+
+int parse_xml_slave_sqlQuerySelectQuery(
+    struct xml_slave_sqlQuerySelectQuery *sqlQuerySelectQuery,
+    const char *const rawXml);
+
 /* Free */
 /* Master */
 /* xml_master_config */
-void
-free_xml_master_config(
+void free_xml_master_config(
     struct xml_master_config *config);
 
 /* xml_master_httpRequestQuery */
-void
-free_xml_master_httpRequestQuery_headers(
+void free_xml_master_httpRequestQuery_headers(
     struct xml_master_httpRequestQuery_headers *httpRequestQuery_headers);
 
-void
-free_xml_master_httpRequestQuery_postArgs(
+void free_xml_master_httpRequestQuery_postArgs(
     struct xml_master_httpRequestQuery_postArgs *httpRequestQuery_postArgs);
 
-void
-free_xml_master_httpRequestQuery(
+void free_xml_master_httpRequestQuery(
     struct xml_master_httpRequestQuery *httpRequestQuery);
 
 /* xml_master_sqlQueryError */
-void
-free_xml_master_sqlQueryError(
+void free_xml_master_sqlQueryError(
     struct xml_master_sqlQueryError *sqlQueryError);
 
 /* xml_master_sqlQueryModifResult */
-void
-free_xml_master_sqlQueryModifResult(
+void free_xml_master_sqlQueryModifResult(
     struct xml_master_sqlQueryModifResult *sqlQueryModifResult);
 
 /* xml_master_sqlQuerySelectResult */
-void
-free_xml_master_sqlQuerySelectResult_rowValue(
+void free_xml_master_sqlQuerySelectResult_rowValue(
     struct xml_master_sqlQuerySelectResult_rowValue *sqlQuerySelectResult_rowValue);
 
-void
-free_xml_master_sqlQuerySelectResult_row(
+void free_xml_master_sqlQuerySelectResult_row(
     struct xml_master_sqlQuerySelectResult_row *sqlQuerySelectResult_row);
 
-void
-free_xml_master_sqlQuerySelectResult(
+void free_xml_master_sqlQuerySelectResult(
     struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult);
 
 /* Slave */
 /* xml_slave_configQuery */
-void
-free_xml_slave_configQuery(
+void free_xml_slave_configQuery(
     struct xml_slave_configQuery *configQuery);
 
 /* xml_slave_httpRequestAnswer */
-void
-free_xml_slave_httpRequestAnswer_headers(
+void free_xml_slave_httpRequestAnswer_headers(
     struct xml_slave_httpRequestAnswer_headers *httpRequestAndwer_headers);
 
-void
-free_xml_slave_httpRequestAnswer(
+void free_xml_slave_httpRequestAnswer(
     struct xml_slave_httpRequestAnswer *httpRequestAnswer);
 
 /* xml_slave_log */
-void
-free_xml_slave_log(
+void free_xml_slave_log(
     struct xml_slave_log *log);
 
 /* xml_slave_sqlQueryModifQuery */
-void
-free_xml_slave_sqlQueryModifQuery(
+void free_xml_slave_sqlQueryModifQuery(
     struct xml_slave_sqlQueryModifQuery *sqlQueryModifQuery);
 
 /* xml_slave_sqlQuerySelectQuery */
-void
-free_xml_slave_sqlQuerySelectQuery(
+void free_xml_slave_sqlQuerySelectQuery(
     struct xml_slave_sqlQuerySelectQuery *sqlQuerySelectQuery);
 
 #endif
