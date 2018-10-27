@@ -22,7 +22,16 @@
             </user>
             <user>
                 <name>toto</name>
-                <password type="sha1">4e1243bd22c66e76c2ba9eddc1f91394e57f9f83</password>
+                <password type="sha1">c1913d73a8c71540bebdce40dfafd81a3a6dfd41</password>
+                <groups>
+                    <group>users</group>
+                    <group>netTop</group>
+                    <group>admin</group>
+                </groups>
+            </user>
+            <user>
+                <name>tutu</name>
+                <password type="md5">3c8c843c44348ab162a3ac590caac215</password>
                 <groups>
                     <group>users</group>
                     <group>netTop</group>
@@ -31,10 +40,12 @@
             </user>
         </static>
     </auth>
-    <system>
-        <test/>
-    </system>
-    <process>
-        <test2/>
-    </process>
+    <modules-config>
+        <system>
+            <test/>
+        </system>
+        <process>
+            <test2/>
+        </process>
+    </modules-config>
 </config>

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <message>
-    <action type="sqlquery-error-result">
+    <action type="sqlquery-error">
         <query>
             INSERT INTO test
             VALUES (1,2,3)
             ;
         </query>
-        <error>
-            <code>1</code>
-            <msg>ERROR_MSG</msg>
+        <error code="1">
+            ERROR_MSG
         </error>
     </action>
 </message>

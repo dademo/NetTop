@@ -18,6 +18,7 @@ SET(
     router
     tools
     config
+    ipc
 )
 
 FILE(
@@ -71,10 +72,6 @@ FOREACH(CONFIG_MODULE ${CONFIG_MODULES})
         src/engine/${CONFIG_MODULE}/*.h
     )
 
-    MESSAGE(STATUS "CONFIG_MODULE: ${CONFIG_MODULE}")
-    MESSAGE(STATUS "sources: ${${CONFIG_MODULE}_sources}")
-    MESSAGE(STATUS "headers: ${${CONFIG_MODULE}_headers}")
-
     SET(
         config_modules_sources
         ${config_modules_sources}
@@ -87,11 +84,6 @@ FOREACH(CONFIG_MODULE ${CONFIG_MODULES})
         ${${CONFIG_MODULE}_headers}
     )
 ENDFOREACH(CONFIG_MODULE)
-
-MESSAGE(STATUS "--")
-MESSAGE(STATUS "config_modules_sources: ${config_modules_sources}")
-MESSAGE(STATUS "config_modules_headers: ${config_modules_headers}")
-MESSAGE(STATUS "--")
 
 SET( ALL_SRC
     ${base_sources}

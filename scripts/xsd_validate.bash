@@ -5,3 +5,5 @@ for xsdFile in ../examples/xml/{master,module}-xsd/*; do
 
 	xmllint --schema "${xsdFile}" "${xmlFile}" --noout;
 done
+
+xmllint --schema ../examples/xml/conf.xsd ../conf.xml --noout

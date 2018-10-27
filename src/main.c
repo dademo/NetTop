@@ -15,6 +15,8 @@
 
 #include "engine/in_mods/mod_login/mod_login.h"
 
+#include "engine/ipc/xml_structures.h"
+
 #include "engine/config/config.h"
 
 void dynamicMem();
@@ -22,6 +24,14 @@ void dynamicMem();
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
+  
+  /*
+  struct xml_master_config master_config;
+  *((const char**) &(master_config.actionType)) = xml_master_config_str;
+
+  printf("%s\n", master_config.actionType);
+  */
+  
 
   readConf("conf.xml");
 

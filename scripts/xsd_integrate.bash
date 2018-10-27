@@ -5,7 +5,7 @@ function errecho() {
 }
 
 function genBody() {
-	for xsd_dir in examples/xml/*xsd; do
+	for xsd_dir in ../examples/xml/*xsd; do
 		if [ -d "${xsd_dir}" ]; then
 			echo "// dir: ${xsd_dir}"
 			errecho "dir: ${xsd_dir}"
@@ -14,7 +14,7 @@ function genBody() {
 				errecho "file: ${fileName}"
 				file=$(cat "${fileName}" | sed -e 's/$/\\/g; s/"/\\"/g')
 				var=$(echo "${fileName}" | sed -E 's/.*\///g; s/(\.|-)/_/g;')
-				echo -e "${var} = \"\\\\\n${file}\";\n";
+				echo -e "const char ${var}[] = \"\\\\\n${file}\n\";\n";
 			done
 		fi
 	done
@@ -22,8 +22,9 @@ function genBody() {
 
 function genFile() {
 	# Header
-	echo '#ifndef XSD_DATA_H'
-	echo '#define XSD_DATA_H'
+	echo '#ifndef XSD_DATA_H_INCLUDED'
+	echo '#define XSD_DATA_H_INCLUDED'
+	echo "#define GENERATION_DATE \"$(date +'%Y-%m-%d %H:%M:%S')\""
 	echo
 
 	# BODY
@@ -35,7 +36,7 @@ function genFile() {
 }
 
 function main() {
-	genFile
+	genFile > ../src/engine/ipc/xsd_data.h
 }
 
 main

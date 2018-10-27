@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <message>
     <action type="log">
-        <logLevel>ERROR</logLevel>
+        <logLevels>
+            <logLevel>DEBUG</logLevel>
+            <logLevel>ERROR</logLevel>
+        </logLevels>
         <text>This is an error !!!</text>
     </action>
 </message>
