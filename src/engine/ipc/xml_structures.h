@@ -4,24 +4,24 @@
 #include "../tools/log.h"
 
 /* Queries string*/
-const char *const xml_master_config_str = "config";
-const char *const xml_master_httpRequestQuery_str = "httpRequest-query";
-const char *const xml_master_sqlQueryError_str = "sqlquery-error";
-const char *const xml_master_sqlQueryModifResult_str = "sqlquery-modif-result";
-const char *const xml_master_sqlQuerySelectResult_str = "sqlquery-select-result";
+static const char *const xml_master_config_str = "config";
+static const char *const xml_master_httpRequestQuery_str = "httpRequest-query";
+static const char *const xml_master_sqlQueryError_str = "sqlquery-error";
+static const char *const xml_master_sqlQueryModifResult_str = "sqlquery-modif-result";
+static const char *const xml_master_sqlQuerySelectResult_str = "sqlquery-select-result";
 
-const char *const xml_slave_configQuery_str = "config-query";
-const char *const xml_slave_httpRequestAnswer_str = "httpRequest-answer";
-const char *const xml_slave_log_str = "log";
-const char *const xml_slave_sqlQueryModifQuery_str = "sqlquery-modif-query";
-const char *const xml_slave_sqlQuerySelectQuery_str = "sqlquery-select-query";
+static const char *const xml_slave_configQuery_str = "config-query";
+static const char *const xml_slave_httpRequestAnswer_str = "httpRequest-answer";
+static const char *const xml_slave_log_str = "log";
+static const char *const xml_slave_sqlQueryModifQuery_str = "sqlquery-modif-query";
+static const char *const xml_slave_sqlQuerySelectQuery_str = "sqlquery-select-query";
 
 /* SQLite Data Types*/
-const char *const SQLITE_INTEGER = "INTEGER";
-const char *const SQLITE_TEXT = "TEXT";
-const char *const SQLITE_REAL = "REAL";
-const char *const SQLITE_BLOB = "BLOB";
-const char *const SQLITE_NULL = "NULL";
+static const char *const SQLITE_INTEGER = "INTEGER";
+static const char *const SQLITE_TEXT = "TEXT";
+static const char *const SQLITE_REAL = "REAL";
+static const char *const SQLITE_BLOB = "BLOB";
+static const char *const SQLITE_NULL = "NULL";
 
 enum SQLITE_DATA_TYPES
 {
@@ -34,11 +34,12 @@ enum SQLITE_DATA_TYPES
 };
 
 /* Log levels */
-const char *LOG_LEVEL_DEBUG_STR = "DEBUG";
-const char *LOG_LEVEL_INFO_STR = "INFO";
-const char *LOG_LEVEL_NOTICE_STR = "NOTICE";
-const char *LOG_LEVEL_WARNING_STR = "WARNING";
-const char *LOG_LEVEL_ERROR_STR = "ERROR";
+static const char *LOG_LEVEL_DEBUG_STR = "DEBUG";
+static const char *LOG_LEVEL_INFO_STR = "INFO";
+static const char *LOG_LEVEL_NOTICE_STR = "NOTICE";
+static const char *LOG_LEVEL_WARNING_STR = "WARNING";
+static const char *LOG_LEVEL_ERROR_STR = "ERROR";
+
 
 /* Structs */
 /* Master */
@@ -77,7 +78,7 @@ struct xml_master_httpRequestQuery
     const char *queryType;
     const char *path;
     struct xml_master_httpRequestQuery_headers headers;
-    unsigned int argLen;
+    unsigned int nArgs;
     struct xml_master_httpRequestQuery_postArgs *postArgs;
 };
 /** END xml_master_httpRequestQuery **/
@@ -136,7 +137,7 @@ struct xml_slave_configQuery
 {
     const char *const actionType;
     unsigned int nConfigQueryName;
-    const char *allConfigQueryName;
+    const char **allConfigQueryName;
 };
 /** END xml_slave_configQuery **/
 
@@ -224,32 +225,45 @@ mkSqlQueryError(
     unsigned int code,
     const char *error);
 
-struct xml_master_sqlQuerySelectResult_rowValue *
+struct xml_master_sqlQueryModifResult
+mkSqlQueryModifResult(
+    const char* query,
+    unsigned int changes
+);
+
+struct xml_master_sqlQuerySelectResult_rowValue
 mkSqlQuerySelectResultRowValue(
-    struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult,
     unsigned int columnId,
     enum SQLITE_DATA_TYPES dataType,
+    const char* colName,
     const char *data);
 
 struct xml_master_sqlQuerySelectResult_row
-mkSqlQuerySelectResult_addRow();
+mkSqlQuerySlectResultRow();
+
+struct xml_master_sqlQuerySelectResult
+mkSqlQuerySelectResult(
+    const char *query);
 
 int
 mkSqlQuerySelectResultRowValue_addRowValue(
     struct xml_master_sqlQuerySelectResult_row *sqlQuerySelectResultRow,
     unsigned int columnId,
     const char *dataType,
+    const char* colName,
     const char *data);
 
-struct xml_master_sqlQuerySelectResult
-mkSqlQuerySelectResult(
-    const char *query);
+int
+mkSqlQuerySelectResult_addRow(
+    struct xml_master_sqlQuerySelectResult* sqlQuerySelectResult,
+    struct xml_master_sqlQuerySelectResult_row sqlQuerySelectResultRow
+);
 
 /* Slave */
 struct xml_slave_configQuery
 mkConfigQuery();
 
-struct xml_slave_configQuery *
+int
 addConfigQuery(
     struct xml_slave_configQuery *configQuery,
     const char *configQueryStr);

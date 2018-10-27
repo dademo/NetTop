@@ -1,4 +1,0 @@
-#ifndef IPC_TEST_H_INCLUDED
-#define IPC_TEST_H_INCLUDED
-
-#endif
