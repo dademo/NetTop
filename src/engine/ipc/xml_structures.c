@@ -430,7 +430,7 @@ int parse_xml_master_config(
     int res = 0;
     int tabLen = 0;
 
-    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in_parse_xml_master_config.xml", NULL, 0);
     if (doc == NULL)
     {
         do_log2("Unable to open document", LOG_LEVEL_ERROR);
@@ -439,7 +439,7 @@ int parse_xml_master_config(
 
     if (xml_apply_xsd(doc, globalData_master_config_xsd) != 0)
     {
-        do_log2("parse_xml_master_config: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -471,7 +471,7 @@ int parse_xml_master_httpRequestQuery(
     struct xml_master_httpRequestQuery *httpRequestQuery,
     const char *const rawXml)
 {
-    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in_parse_xml_master_httpRequestQuery.xml", NULL, 0);
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     /* New attributes */
@@ -508,7 +508,7 @@ int parse_xml_master_httpRequestQuery(
 
     if (xml_apply_xsd(doc, globalData_master_httpRequest_query_xsd) != 0)
     {
-        do_log2("parse_xml_master_httpRequestQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -573,7 +573,23 @@ int parse_xml_master_sqlQueryError(
     struct xml_master_sqlQueryError *sqlQueryError,
     const char *const rawXml)
 {
-    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in_parse_xml_master_sqlQueryError.xml", NULL, 0);
+    /* New attributes */
+    char *query = NULL;
+    int error_code;
+    char *errorStr = NULL;
+    /* Working attributes */
+    char *buff = NULL;
+
+    /* Free function */
+    void freeAll()
+    {
+        _FREE(query);
+        _FREE(errorStr);
+        _FREE(buff);
+        xmlFreeDoc(doc);
+    }
+
     if (doc == NULL)
     {
         do_log2("Unable to open document", LOG_LEVEL_ERROR);
@@ -582,21 +598,53 @@ int parse_xml_master_sqlQueryError(
 
     if (xml_apply_xsd(doc, globalData_master_sqlquery_error_xsd) != 0)
     {
-        do_log2("parse_xml_master_sqlQueryError: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
 
     /* Parsing the file */
+    _RES("query", xmlXPathGetValue(doc, "/message/action/query", NULL, 1, &query));
+    _RES("errorCode", xmlXPathGetAttribute(doc, "/message/action/error", NULL, 1, "code", &buff));
+    _RES("error", xmlXPathGetValue(doc, "/message/action/error", NULL, 1, &errorStr));
 
-    xmlFreeDoc(doc);
+    /* Converting the int value */
+    if (getVal(&error_code, buff) != 0)
+        ;
+    {
+        do_log("Unable to parse error number", LOG_LEVEL_ERROR);
+        freeAll();
+        return 1;
+    }
+
+    *sqlQueryError = mkSqlQueryError(
+        query,
+        error_code,
+        errorStr);
+
+    freeAll();
+    return 0;
 }
 
 int parse_xml_master_sqlQueryModifResult(
     struct xml_master_sqlQueryModifResult *sqlQueryModifResult,
     const char *const rawXml)
 {
-    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in_parse_xml_master_sqlQueryModifResult.xml", NULL, 0);
+    /* New attributes */
+    char *query = NULL;
+    int changes;
+    /* Working attributes */
+    char *buff = NULL;
+
+    /* Free function */
+    void freeAll()
+    {
+        _FREE(query);
+        _FREE(buff);
+        xmlFreeDoc(doc);
+    }
+
     if (doc == NULL)
     {
         do_log2("Unable to open document", LOG_LEVEL_ERROR);
@@ -605,21 +653,72 @@ int parse_xml_master_sqlQueryModifResult(
 
     if (xml_apply_xsd(doc, globalData_master_sqlquery_modif_result_xsd) != 0)
     {
-        do_log2("parse_xml_master_sqlQueryModifResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
 
     /* Parsing the file */
+    _RES("query", xmlXPathGetValue(doc, "/message/action/query", NULL, 1, &query));
+    _RES("changes", xmlXPathGetValue(doc, "/message/action/answer/changes", NULL, 1, &buff));
 
-    xmlFreeDoc(doc);
+    /* Converting the int value */
+    if (getVal(&changes, buff) != 0)
+    {
+        do_log("Unable to parse changes number", LOG_LEVEL_ERROR);
+        freeAll();
+        return 1;
+    }
+
+    *sqlQueryModifResult = mkSqlQueryModifResult(
+        query,
+        changes);
+
+    freeAll();
+    return 0;
 }
 
 int parse_xml_master_sqlQuerySelectResult(
     struct xml_master_sqlQuerySelectResult *sqlQuerySelectResult,
     const char *const rawXml)
 {
-    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in_parse_xml_master_sqlQuerySelectResult.xml", NULL, 0);
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    xmlXPathContextPtr sub_xpathCtx;
+    xmlXPathObjectPtr sub_xpathObj;
+    /* New attributes */
+    char *query = NULL;
+    int changes;
+    unsigned char *dataColumnIdBuff = NULL;
+    int dataColumnId = 0;
+    unsigned char *dataTypeBuff = NULL;
+    unsigned char *dataColNameBuff = NULL;
+    unsigned char *dataBuff = NULL;
+    /* Working attributes */
+    int res = 0;
+
+    /* Free function */
+    void freeAll()
+    {
+        _FREE(query);
+
+        xmlFreeDoc(doc);
+    }
+
+    void freeAll2()
+    {
+        _XMLFREE(dataColumnIdBuff);
+        _XMLFREE(dataTypeBuff);
+        _XMLFREE(dataColNameBuff);
+        _XMLFREE(dataBuff);
+
+        dataColumnIdBuff = NULL;
+        dataTypeBuff = NULL;
+        dataColNameBuff = NULL;
+        dataBuff = NULL;
+    }
+
     if (doc == NULL)
     {
         do_log2("Unable to open document", LOG_LEVEL_ERROR);
@@ -628,14 +727,94 @@ int parse_xml_master_sqlQuerySelectResult(
 
     if (xml_apply_xsd(doc, globalData_master_sqlquery_select_result_xsd) != 0)
     {
-        do_log2("parse_xml_master_sqlQuerySelectResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
 
     /* Parsing the file */
+    _RES("query", xmlXPathGetValue(doc, "/message/action/query", NULL, 1, &query));
 
-    xmlFreeDoc(doc);
+    *sqlQuerySelectResult = mkSqlQuerySelectResult(
+        query);
+
+    res = xmlXPathGetNode(&xpathCtx, &xpathObj, doc, "/message/action/answer/*", NULL, 0);
+    if (res != 0)
+    {
+        do_log2("Unable to get node", LOG_LEVEL_ERROR);
+        freeAll();
+        return res;
+    }
+
+    /* For each row */
+    for (int i = 0; i < xpathObj->nodesetval->nodeNr; i++)
+    {
+        struct xml_master_sqlQuerySelectResult_row sqlQuerySelectResult_row = mkSqlQuerySlectResultRow();
+        res = xmlXPathGetNode(&sub_xpathCtx, &sub_xpathObj, doc, "./*", xpathObj->nodesetval->nodeTab[i], 0);
+
+        if (res != 0)
+        {
+            do_log2("Unable to get node", LOG_LEVEL_ERROR);
+            freeAll2();
+            freeAll();
+            return res;
+        }
+
+        /* For each column */
+        for (int j = 0; j < sub_xpathObj->nodesetval->nodeNr; j++)
+        {
+            dataColumnIdBuff = xmlGetProp(sub_xpathObj->nodesetval->nodeTab[j], "columnId");
+            dataTypeBuff = xmlGetProp(sub_xpathObj->nodesetval->nodeTab[j], "type");
+            dataColNameBuff = xmlGetProp(sub_xpathObj->nodesetval->nodeTab[j], "name");
+            dataBuff = xmlNodeListGetString(doc, sub_xpathObj->nodesetval->nodeTab[j]->children, 1);
+
+            /* Converting the int value */
+            if (getVal(&dataColumnId, dataColumnIdBuff) != 0)
+            {
+                do_log("Unable to parse columnId number", LOG_LEVEL_ERROR);
+                free_xml_master_sqlQuerySelectResult_row(&sqlQuerySelectResult_row);
+                free_xml_master_sqlQuerySelectResult(sqlQuerySelectResult);
+                xmlXPathGetNode_clean(&sub_xpathCtx, &sub_xpathObj);
+                xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+                freeAll2();
+                freeAll();
+                return 1;
+            }
+
+            if (mkSqlQuerySelectResultRowValue_addRowValue(
+                    &sqlQuerySelectResult_row,
+                    dataColumnId,
+                    dataTypeBuff,
+                    dataColNameBuff,
+                    dataBuff) != 0)
+            {
+                do_log("Unable to parse columnId number", LOG_LEVEL_ERROR);
+                free_xml_master_sqlQuerySelectResult_row(&sqlQuerySelectResult_row);
+                free_xml_master_sqlQuerySelectResult(sqlQuerySelectResult);
+                xmlXPathGetNode_clean(&sub_xpathCtx, &sub_xpathObj);
+                xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+                freeAll2();
+                freeAll();
+                return 1;
+            }
+            freeAll2();
+        }
+
+        if (mkSqlQuerySelectResult_addRow(
+                sqlQuerySelectResult,
+                sqlQuerySelectResult_row) != 0)
+        {
+            do_log2("Unable to add row", LOG_LEVEL_ERROR);
+            free_xml_master_sqlQuerySelectResult_row(&sqlQuerySelectResult_row);
+            free_xml_master_sqlQuerySelectResult(sqlQuerySelectResult);
+        }
+
+        xmlXPathGetNode_clean(&sub_xpathCtx, &sub_xpathObj);
+    }
+    xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+    
+    freeAll();
+    return 0;
 }
 
 /* Slave */

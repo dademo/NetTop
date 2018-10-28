@@ -49,6 +49,30 @@ char rawXML2[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
     </action>\
 </message>";
 
+char rawXML3[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+<message>\
+    <action type=\"sqlquery-select-result\">\
+        <query>\
+            SELECT\
+                *\
+            FROM test\
+            ;\
+        </query>\
+        <answer>\
+            <row>\
+                <value columnId=\"1\" type=\"INTEGER\" name=\"id\">1</value>\
+                <value columnId=\"2\" type=\"TEXT\" name=\"First Name\">TOTO</value>\
+                <value columnId=\"3\" type=\"REAL\" name=\"Last Name\">TUTU</value>\
+            </row>\
+            <row>\
+                <value columnId=\"1\" type=\"BLOB\" name=\"id\">2</value>\
+                <value columnId=\"2\" type=\"NULL\" name=\"First Name\"></value>\
+                <value columnId=\"3\" type=\"TEXT\" name=\"Last Name\">TITI</value>\
+            </row>\
+        </answer>\
+    </action>\
+</message>";
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
@@ -101,19 +125,47 @@ printf("res: %d\n", res);
     }
   }
 
-struct xml_master_httpRequestQuery requestQuery;
+  struct xml_master_httpRequestQuery requestQuery;
 
-res = parse_xml_master_httpRequestQuery(&requestQuery, rawXML2);
+  res = parse_xml_master_httpRequestQuery(&requestQuery, rawXML2);
 
-if (res == 0)
-{
-  printf("%s\n", requestQuery.path);
+  if (res == 0)
+  {
+    printf("%s\n", requestQuery.path);
 
-  free_xml_master_httpRequestQuery(&requestQuery);
-} else {
-  printf("KO\n");
-}
+    free_xml_master_httpRequestQuery(&requestQuery);
+  }
+  else
+  {
+    printf("KO\n");
+  }
 
+  struct xml_master_sqlQuerySelectResult sqlQuerySelectResult;
+
+  res = parse_xml_master_sqlQuerySelectResult(&sqlQuerySelectResult, rawXML3);
+  if (res == 0)
+  {
+    printf("%s\n", sqlQuerySelectResult.query);
+    printf("%d\n", sqlQuerySelectResult.nRows);
+
+    for (int i = 0; i < sqlQuerySelectResult.nRows; i++)
+    {
+      printf("row %d, %d cols\n", i, sqlQuerySelectResult.rows[i].nCols);
+      for(int j = 0; j < sqlQuerySelectResult.rows[i].nCols; j++) {
+        printf("Col %d :\n\t%d\n\t%d\n\t%s\n\t%s\n", j,
+        sqlQuerySelectResult.rows[i].cols[j].columnId,
+        sqlQuerySelectResult.rows[i].cols[j].dataType,
+        sqlQuerySelectResult.rows[i].cols[j].colName,
+        sqlQuerySelectResult.rows[i].cols[j].data);
+      }
+    }
+
+    free_xml_master_sqlQuerySelectResult(&sqlQuerySelectResult);
+  }
+  else
+  {
+    printf("KO\n");
+  }
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);

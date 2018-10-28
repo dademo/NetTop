@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -29,7 +30,7 @@ void _strMallocCpy(
         }
         else
         {
-            fprintf(stderr, "Unable to malloc");
+            do_log2("Unable to malloc", LOG_LEVEL_ERROR);
             return;
         }
     }
@@ -38,6 +39,33 @@ void _strMallocCpy(
         do_log2("src == NULL", LOG_LEVEL_WARNING);
         *dst = NULL;
     }
+}
+int getVal(
+    int *outVal,
+    char *str)
+{
+    char buffer[2048];
+    char *endptr = NULL;
+    const int base = 10;
+
+    /* Converting the value */
+    *outVal = strtol(str, &endptr, 10);
+
+    if ((errno == ERANGE &&
+         (*outVal == LONG_MAX || *outVal == LONG_MIN)) ||
+        (errno == EINVAL && *outVal == 0))
+    {
+        strerror_r(errno, buffer, 2048);
+        do_log2(buffer, LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    if (endptr == str)
+    {
+        do_log2("No digits were found", LOG_LEVEL_ERROR);
+        return 1;
+    }
+    return 0;
 }
 
 enum SQLITE_DATA_TYPES
@@ -358,7 +386,6 @@ int xmlXPathGetNode(
         res = xmlXPathSetContextNode(base, *xpathCtx);
         if (res != 0)
         {
-
             do_log2("Unable set the context", LOG_LEVEL_ERROR);
             xmlXPathGetNode_clean(xpathCtx, xpathObj);
             return 1;
@@ -471,8 +498,8 @@ int xmlXPathGetValue(
     }
 
     if (xpathObj->nodesetval->nodeNr != 1)
-    {
-        sprintf(errBuff, "Multiple nodes encountered (%d)", xpathObj->nodesetval->nodeNr);
+    {printf("%s\n", base->name);
+        sprintf(errBuff, "Several or no nodes encountered (%d)", xpathObj->nodesetval->nodeNr);
         do_log2(errBuff, LOG_LEVEL_ERROR);
         xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
         return 1;
@@ -484,7 +511,7 @@ int xmlXPathGetValue(
         xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
         return 1;
     }
-
+    
     dataBuff = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[0]->children, 1);
 
     if (dataBuff == NULL)

@@ -12,27 +12,45 @@
         free((void *)data); \
     }
 
-#define _XMLFREE(data)         \
-    if (data != NULL)       \
-    {                       \
+#define _XMLFREE(data) \
+    if (data != NULL)  \
+    {                  \
         xmlFree(data); \
     }
 
 #define _STRCMP(s1, s2) (strcmp(s1, s2) == 0)
 
-#define _RES(field, res)                     \
-    if (res != 0)                            \
-    {                                        \
-        char buff[2048];                     \
-        sprintf("Error at field %s", field); \
-        do_log2(buff, LOG_LEVEL_ERROR);      \
-        freeAll();                           \
-        return 1;                            \
+#define _RES(field, res)                           \
+    if (res != 0)                                  \
+    {                                              \
+        char buff[2048];                           \
+        sprintf(buff, "Error at field %s", field); \
+        do_log2(buff, LOG_LEVEL_ERROR);            \
+        freeAll();                                 \
+        return 1;                                  \
+    }
+
+#define _SELECT_RES(field, res)                              \
+    if (res != 0)                                            \
+    {                                                        \
+        char buff[2048];                                     \
+        sprintf(buff, "Error at field %s", field);           \
+        do_log2(buff, LOG_LEVEL_ERROR);                      \
+                                                             \
+        xmlXPathGetNode_clean(&sub_xpathCtx, &sub_xpathObj); \
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);         \
+        freeAll2();                                          \
+        freeAll();                                           \
+        return 1;                                            \
     }
 
 void _strMallocCpy(
     char **dst,
     const char *src);
+
+int getVal(
+    int *outVal,
+    char *str);
 
 enum SQLITE_DATA_TYPES
 _getSQLiteType(
