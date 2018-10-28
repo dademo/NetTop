@@ -29,11 +29,13 @@ void _strMallocCpy(
         }
         else
         {
+            fprintf(stderr, "Unable to malloc");
             return;
         }
     }
     else
     {
+        printf("src == NULL\n");
         *dst = NULL;
     }
 }
@@ -124,7 +126,7 @@ int xml_apply_xsd(
     schemaParserCtxt = xmlSchemaNewMemParserCtxt(rawXsd, strlen(rawXsd));
     if (schemaParserCtxt == NULL)
     {
-        do_log("Unable to open XSD file", LOG_LEVEL_ERROR);
+        do_log2("Unable to open XSD file", LOG_LEVEL_ERROR);
         _xmlDoClean(
             schemaParserCtxt,
             parsedSchema,
@@ -134,7 +136,7 @@ int xml_apply_xsd(
     parsedSchema = xmlSchemaParse(schemaParserCtxt);
     if (parsedSchema == NULL)
     {
-        do_log("Unable to parse XSD file", LOG_LEVEL_ERROR);
+        do_log2("Unable to parse XSD file", LOG_LEVEL_ERROR);
         _xmlDoClean(
             schemaParserCtxt,
             parsedSchema,
@@ -144,7 +146,7 @@ int xml_apply_xsd(
     validationContext = xmlSchemaNewValidCtxt(parsedSchema);
     if (validationContext == NULL)
     {
-        do_log("Unable to create validation context with XSD file", LOG_LEVEL_ERROR);
+        do_log2("Unable to create validation context with XSD file", LOG_LEVEL_ERROR);
         _xmlDoClean(
             schemaParserCtxt,
             parsedSchema,
@@ -160,12 +162,12 @@ int xml_apply_xsd(
             validationContext);
         if (validateDoc < 0)
         {
-            do_log("libxml2 internal error", LOG_LEVEL_ERROR);
+            do_log2("libxml2 internal error", LOG_LEVEL_ERROR);
             return 1;
         }
         if (validateDoc > 0)
         {
-            do_log("XML file validation error", LOG_LEVEL_ERROR);
+            do_log2("XML file validation error", LOG_LEVEL_ERROR);
             return 1;
         }
     }
@@ -212,14 +214,14 @@ int extractSubDocument(
     xpathCtx = xmlXPathNewContext(doc);
     if (xpathCtx == NULL)
     {
-        do_log("Unable to create xpathCtx", LOG_LEVEL_ERROR);
+        do_log2("Unable to create xpathCtx", LOG_LEVEL_ERROR);
         return 0;
     }
 
     xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
     if (xpathObj == NULL && resultRequired == 1)
     {
-        do_log("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
+        do_log2("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
         xmlXPathFreeContext(xpathCtx);
         return 0;
     }
@@ -254,5 +256,79 @@ int extractSubDocument(
     xmlFree(xmlBuff);
     xmlXPathFreeObject(xpathObj);
     xmlXPathFreeContext(xpathCtx);
+    xmlFreeDoc(newDoc);
+    return 0;
+}
+
+int extractSubDocumentMulti(
+    const char ***outBuff,
+    int *nBuff,
+    char *xpathExpr,
+    xmlDocPtr doc,
+    int resultRequired)
+{
+    xmlXPathContextPtr xpathCtx = NULL;
+    xmlXPathObjectPtr xpathObj = NULL;
+    xmlDocPtr newDoc = NULL;
+    xmlNodePtr newDocBase = NULL;
+    unsigned char *xmlBuff = NULL;
+    int xmlBuffSize = 0;
+    int arr_size = 0;
+    const char **tmpOutBuff = NULL;
+
+    xpathCtx = xmlXPathNewContext(doc);
+    if (xpathCtx == NULL)
+    {
+        do_log2("Unable to create xpathCtx", LOG_LEVEL_ERROR);
+        return 0;
+    }
+
+    xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
+    if (xpathObj == NULL && resultRequired == 1)
+    {
+        do_log2("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
+        xmlXPathFreeContext(xpathCtx);
+        return 0;
+    }
+
+    /* Copying the whole content */
+    for (int i = 0; i < xpathObj->nodesetval->nodeNr; i++)
+    {
+        if (xpathObj->nodesetval->nodeTab[i] != NULL)
+        {
+            newDoc = xmlNewDoc("1.0");
+            xmlNodePtr rootNote = xmlCopyNode(xpathObj->nodesetval->nodeTab[i], 1);
+            xmlDocSetRootElement(newDoc, rootNote);
+            xmlDocDumpFormatMemory(newDoc, &xmlBuff, &xmlBuffSize, 0);
+
+            tmpOutBuff = realloc(tmpOutBuff, (arr_size + 1) * sizeof(char **));
+            if (tmpOutBuff != NULL)
+            {
+                _strMallocCpy(tmpOutBuff + arr_size, xmlBuff);
+                arr_size++;
+            }
+            else
+            {
+                do_log2("Unable to malloc", LOG_LEVEL_ERROR);
+                for (int i = 0; i < arr_size; i++)
+                {
+                    free((char *)(tmpOutBuff)[i]);
+                }
+                xmlFree(xmlBuff);
+                xmlFreeDoc(newDoc);
+                xmlXPathFreeObject(xpathObj);
+                xmlXPathFreeContext(xpathCtx);
+                return 1;
+            }
+            xmlFree(xmlBuff);
+            xmlFreeDoc(newDoc);
+        }
+    }
+    xmlXPathFreeObject(xpathObj);
+    xmlXPathFreeContext(xpathCtx);
+
+    *outBuff = tmpOutBuff;
+    *nBuff = arr_size;
+
     return 0;
 }

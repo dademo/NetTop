@@ -29,32 +29,32 @@ int runWevServer(struct router_conf routerConf)
 
   if (get_regex(&reg_login, "^/login$", 1) != 0)
   {
-    do_log("Unable to compile the login regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the login regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   if (get_regex(&reg_login_redirect, "^/login.+", 1) != 0)
   {
-    do_log("Unable to compile the login regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the login regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   if (get_regex(&reg_logout, "^/logout$", 1) != 0)
   {
-    do_log("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   if (get_regex(&reg_logout_redirect, "^/logout.+", 1) != 0)
   {
-    do_log("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the logout regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   if (get_regex(&reg_login_status, "^/login/status$", 1) != 0)
   {
-    do_log("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   if (get_regex(&reg_login_status_redirect, "^/login/status.+", 1) != 0)
   {
-    do_log("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
+    do_log2("Unable to compile the login status regex. Closing the program", LOG_LEVEL_ERROR);
     return 1;
   }
   
@@ -76,14 +76,14 @@ int runWevServer(struct router_conf routerConf)
   if (NULL == daemon)
     return 1;
   else
-    do_log("Server started", LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
+    do_log2("Server started", LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
 
   while (webServer_run)
   {
     sleep(1);
   }
 
-  do_log("Stopping daemon", LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
+  do_log2("Stopping daemon", LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
 
   static regex_t reg_logout;
   static regex_t reg_logout_redirect;
@@ -104,19 +104,19 @@ void handleStop(int signal)
   switch (signal)
   {
   case SIGHUP:
-    do_log("Signal SIGHUP received", LOG_LEVEL_INFO);
+    do_log2("Signal SIGHUP received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGINT:
-    do_log("Signal SIGINT received", LOG_LEVEL_INFO);
+    do_log2("Signal SIGINT received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGQUIT:
-    do_log("Signal SIGQUIT received", LOG_LEVEL_INFO);
+    do_log2("Signal SIGQUIT received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   case SIGTERM:
-    do_log("Signal SIGTERM received", LOG_LEVEL_INFO);
+    do_log2("Signal SIGTERM received", LOG_LEVEL_INFO);
     webServer_run = 0;
     break;
   }
@@ -199,12 +199,12 @@ int handleConnection(void *cls,
       if (ret == route_status_OK)
       {
         sprintf(msgBuff, "Request: %s\t%d\tOK", clientBuffIP, clientPort);
-        do_log(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
+        do_log2(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
       }
       else
       {
         sprintf(msgBuff, "Request: %s\t%d\tno_route (%s)", clientBuffIP, clientPort, url);
-        do_log(msgBuff, LOG_LEVEL_NOTICE | LOG_LEVEL_DEBUG);
+        do_log2(msgBuff, LOG_LEVEL_NOTICE | LOG_LEVEL_DEBUG);
       }
     }
 
@@ -219,7 +219,7 @@ int handleConnection(void *cls,
       if (strlen(clientBuffIP) > 0)
       {
         sprintf(msgBuff, "Request: %s\t%d\tno_route (%s)", clientBuffIP, clientPort, url);
-        do_log(msgBuff, LOG_LEVEL_NOTICE | LOG_LEVEL_DEBUG);
+        do_log2(msgBuff, LOG_LEVEL_NOTICE | LOG_LEVEL_DEBUG);
       }
     }
     else
@@ -234,7 +234,7 @@ int handleConnection(void *cls,
       if (strlen(clientBuffIP) > 0)
       {
         sprintf(msgBuff, "Request: %s\t%d\tOK", clientBuffIP, clientPort);
-        do_log(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
+        do_log2(msgBuff, LOG_LEVEL_INFO | LOG_LEVEL_DEBUG);
       }
     }*/
     //MHD_destroy_response(response);

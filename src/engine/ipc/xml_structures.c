@@ -421,30 +421,49 @@ stringify_xml_slave_sqlQuerySelectQuery(
 /* Parsers */
 /* Master */
 int parse_xml_master_config(
-    struct xml_master_config *config,
+    struct xml_master_config **config,
+    int* nElems,
     const char *const rawXml)
 {
-    const char* configName;
-    const char* inConfig;
+    const char **tmpBuff = NULL;
+    int res = 0;
+    int tabLen = 0;
 
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_master_config_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_master_config_xsd) != 0)
     {
-        do_log("parse_xml_master_config: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_master_config: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
 
     /* Parsing the file */
-    
+    //res = extractSubDocument(&tmpBuff, "/message/action/*", doc, 1, "config");
+    res = extractSubDocumentMulti(&tmpBuff, &tabLen, "/message/action/*", doc, 1);
+    if (res == 0)
+    {
+        *config = malloc(tabLen * (sizeof(struct xml_master_config)));
+        for (int i = 0; i < tabLen; i++)
+        {
+            xmlDocPtr tmpDoc = xmlReadMemory(tmpBuff[i], strlen(tmpBuff[i]), "in2.xml", NULL, 0);
+            xmlNodePtr rootNode = xmlDocGetRootElement(tmpDoc);
 
+            _strMallocCpy(&((*config)[i].configName), rootNode->name);
+            (*config)[i].inConfig = tmpBuff[i];
+
+            xmlFreeDoc(tmpDoc);
+        }
+    }
+
+    *nElems = tabLen;
     xmlFreeDoc(doc);
+    return 0;
 }
 
 int parse_xml_master_httpRequestQuery(
@@ -454,13 +473,13 @@ int parse_xml_master_httpRequestQuery(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_master_httpRequest_query_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_master_httpRequest_query_xsd) != 0)
     {
-        do_log("parse_xml_master_httpRequestQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_master_httpRequestQuery: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -477,13 +496,13 @@ int parse_xml_master_sqlQueryError(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_master_sqlquery_error_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_error_xsd) != 0)
     {
-        do_log("parse_xml_master_sqlQueryError: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_master_sqlQueryError: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -500,13 +519,13 @@ int parse_xml_master_sqlQueryModifResult(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_master_sqlquery_modif_result_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_modif_result_xsd) != 0)
     {
-        do_log("parse_xml_master_sqlQueryModifResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_master_sqlQueryModifResult: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -523,13 +542,13 @@ int parse_xml_master_sqlQuerySelectResult(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_master_sqlquery_select_result_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_master_sqlquery_select_result_xsd) != 0)
     {
-        do_log("parse_xml_master_sqlQuerySelectResult: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_master_sqlQuerySelectResult: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -547,13 +566,13 @@ int parse_xml_slave_configQuery(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_slave_config_query_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_slave_config_query_xsd) != 0)
     {
-        do_log("parse_xml_slave_configQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_slave_configQuery: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -570,13 +589,13 @@ int parse_xml_slave_httpRequestAnswer(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_slave_httpRequest_answer_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_slave_httpRequest_answer_xsd) != 0)
     {
-        do_log("parse_xml_slave_httpRequestAnswer: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_slave_httpRequestAnswer: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -593,13 +612,13 @@ int parse_xml_slave_log(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_slave_log_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_slave_log_xsd) != 0)
     {
-        do_log("parse_xml_slave_log: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_slave_log: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -616,13 +635,13 @@ int parse_xml_slave_sqlQueryModifQuery(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_slave_sqlquery_modif_query_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_slave_sqlquery_modif_query_xsd) != 0)
     {
-        do_log("parse_xml_slave_sqlQueryModifQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_slave_sqlQueryModifQuery: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }
@@ -639,13 +658,13 @@ int parse_xml_slave_sqlQuerySelectQuery(
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
     if (doc == NULL)
     {
-        do_log("Unable to open document", LOG_LEVEL_ERROR);
+        do_log2("Unable to open document", LOG_LEVEL_ERROR);
         return 1;
     }
 
-    if (xml_apply_xsd(doc, globalData_slave_sqlquery_select_query_xsd) == 0)
+    if (xml_apply_xsd(doc, globalData_slave_sqlquery_select_query_xsd) != 0)
     {
-        do_log("parse_xml_slave_sqlQuerySelectQuery: XSD parsing failed", LOG_LEVEL_ERROR);
+        do_log2("parse_xml_slave_sqlQuerySelectQuery: XSD parsing failed", LOG_LEVEL_ERROR);
         xmlFreeDoc(doc);
         return 1;
     }

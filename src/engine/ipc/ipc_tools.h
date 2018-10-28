@@ -10,8 +10,7 @@
         free((void *)data); \
     }
 
-void
-_strMallocCpy(
+void _strMallocCpy(
     const char **dst,
     const char *src);
 
@@ -19,23 +18,27 @@ enum SQLITE_DATA_TYPES
 _getSQLiteType(
     const char *dataType);
 
-int
-xml_apply_xsd(
+int xml_apply_xsd(
     const xmlDocPtr doc,
     const char *rawXsd);
 
-void
-_xmlDoClean(
+void _xmlDoClean(
     xmlSchemaParserCtxtPtr schemaParserCtxt,
     xmlSchemaPtr parsedSchema,
     xmlSchemaValidCtxtPtr validationContext);
 
-int
-extractSubDocument(
-    const char** outBuff,
+int extractSubDocument(
+    const char **outBuff,
     char *xpathExpr,
     xmlDocPtr doc,
     int resultRequired,
-    char* baseNodeName);
+    char *baseNodeName);
+
+int extractSubDocumentMulti(
+    const char ***outBuff,
+    int *nBuff,
+    char *xpathExpr,
+    xmlDocPtr doc,
+    int resultRequired);
 
 #endif

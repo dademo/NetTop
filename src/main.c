@@ -21,32 +21,67 @@
 
 #include "engine/ipc/ipc_tools.h"
 
+char rawXML[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+<message>\
+    <action type=\"config\">\
+        <CONFIG1>\
+            <sub_elem1>TOTO</sub_elem1>\
+            <sub_elem2>TATA</sub_elem2>\
+        </CONFIG1>\
+    </action>\
+</message>";
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
 
-  readConf("conf.xml");
+  //readConf("conf.xml");
 
-/*
-  const char* out = NULL;
+  /*
+  const char **out = NULL;
+  int tabLen = 0;
   xmlDocPtr doc = xmlParseFile("conf.xml");
-  int res = extractSubDocument(&out, "/config/modules-config/*", doc, 1, "config");
+  //int res = extractSubDocument(&out, "/config/modules-config/*", doc, 1, "config");
+  int res = extractSubDocumentMulti(&out, &tabLen, "/config/modules-config/*", doc, 1);
+printf("res: %d\n", res);
   if (res != 0)
   {
-    do_log("main", LOG_LEVEL_ERROR);
+    do_log2("main", LOG_LEVEL_ERROR);
   }
   else
   {
-    printf("%s\n", out);
+    for (int i = 0; i < tabLen; i++)
+    {
+      printf("%s\n", out[i]);
+    }
   }
   if (out != NULL)
   {
+    for (int i = 0; i < tabLen; i++)
+    {
+      _FREE(out[i]);
+    }
     _FREE(out);
   }
   xmlFreeDoc(doc);
   */
+
+  int res = 0;
+  int nElems;
+  struct xml_master_config *allConfigs;
+
+  res = parse_xml_master_config(&allConfigs, &nElems, rawXML);
+
+  if (res == 0)
+  {
+    for (int i = 0; i < nElems; i++)
+    {
+      printf("%s:%s\n", allConfigs->configName, allConfigs->inConfig);
+      free_xml_master_config(allConfigs + i);
+    }
+  }
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);

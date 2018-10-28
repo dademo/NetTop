@@ -25,7 +25,7 @@ int check_regex(char *strRegex)
         regerror(regCompRes, &regex, buff, DEFAULT_BUFFER_SIZE);
         sprintf(buff, "check_regex: Unable to create regex : %s", regErrBuff);
 
-        do_log(buff, LOG_LEVEL_ERROR);
+        do_log2(buff, LOG_LEVEL_ERROR);
 
         regfree(&regex);
         return 1;
@@ -49,7 +49,7 @@ int get_regex(regex_t *regex, const char *strRegex, const int ignoreCase)
 {
     if (regex == NULL)
     {
-        do_log("get_regex: regex is NULL", LOG_LEVEL_ERROR);
+        do_log2("get_regex: regex is NULL", LOG_LEVEL_ERROR);
         return 1;
     }
 
@@ -63,7 +63,7 @@ int get_regex(regex_t *regex, const char *strRegex, const int ignoreCase)
         regerror(retCode, regex, buff, DEFAULT_BUFFER_SIZE);
         sprintf(buff, "check_regex: Unable to create regex : %s", regErrBuff);
 
-        do_log(buff, LOG_LEVEL_ERROR);
+        do_log2(buff, LOG_LEVEL_ERROR);
 
         regfree(regex);
 

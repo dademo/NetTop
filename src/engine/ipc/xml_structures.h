@@ -318,7 +318,8 @@ stringify_xml_slave_sqlQuerySelectQuery(
 /* Parsers */
 /* Master */
 int parse_xml_master_config(
-    struct xml_master_config *config,
+    struct xml_master_config **config,
+    int* nElems,
     const char *const rawXml);
 
 int parse_xml_master_httpRequestQuery(
