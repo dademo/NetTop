@@ -14,7 +14,7 @@
 #include "ipc_tools.h"
 
 void _strMallocCpy(
-    const char **dst,
+    char **dst,
     const char *src)
 {
     int str_len = 0;
@@ -35,7 +35,7 @@ void _strMallocCpy(
     }
     else
     {
-        printf("src == NULL\n");
+        do_log2("src == NULL", LOG_LEVEL_WARNING);
         *dst = NULL;
     }
 }
@@ -198,7 +198,7 @@ void _xmlDoClean(
 }
 
 int extractSubDocument(
-    const char **outBuff,
+    char **outBuff,
     char *xpathExpr,
     xmlDocPtr doc,
     int resultRequired,
@@ -215,7 +215,7 @@ int extractSubDocument(
     if (xpathCtx == NULL)
     {
         do_log2("Unable to create xpathCtx", LOG_LEVEL_ERROR);
-        return 0;
+        return 1;
     }
 
     xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
@@ -223,7 +223,7 @@ int extractSubDocument(
     {
         do_log2("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
         xmlXPathFreeContext(xpathCtx);
-        return 0;
+        return 1;
     }
 
     /* Copying the whole content */
@@ -248,7 +248,7 @@ int extractSubDocument(
         xmlFree(xmlBuff);
         xmlXPathFreeObject(xpathObj);
         xmlXPathFreeContext(xpathCtx);
-        return 0;
+        return 1;
     }
 
     _strMallocCpy(outBuff, xmlBuff);
@@ -261,7 +261,7 @@ int extractSubDocument(
 }
 
 int extractSubDocumentMulti(
-    const char ***outBuff,
+    char ***outBuff,
     int *nBuff,
     char *xpathExpr,
     xmlDocPtr doc,
@@ -274,13 +274,13 @@ int extractSubDocumentMulti(
     unsigned char *xmlBuff = NULL;
     int xmlBuffSize = 0;
     int arr_size = 0;
-    const char **tmpOutBuff = NULL;
+    char **tmpOutBuff = NULL;
 
     xpathCtx = xmlXPathNewContext(doc);
     if (xpathCtx == NULL)
     {
         do_log2("Unable to create xpathCtx", LOG_LEVEL_ERROR);
-        return 0;
+        return 1;
     }
 
     xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
@@ -288,7 +288,7 @@ int extractSubDocumentMulti(
     {
         do_log2("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
         xmlXPathFreeContext(xpathCtx);
-        return 0;
+        return 1;
     }
 
     /* Copying the whole content */
@@ -329,6 +329,175 @@ int extractSubDocumentMulti(
 
     *outBuff = tmpOutBuff;
     *nBuff = arr_size;
+
+    return 0;
+}
+
+int xmlXPathGetNode(
+    xmlXPathContextPtr *xpathCtx, /* A pointer to the xmlXPathContextPtr object we will use */
+    xmlXPathObjectPtr *xpathObj,  /* A pointer to the xmlXPathObjectPtr object we will use */
+    xmlDocPtr doc,                /* The coument to use */
+    char *xpathExpr,              /* The xpath expression to evaluate */
+    xmlNodePtr base,              /* Optionnal: The base of research */
+    int resultRequired            /* Is the result required */
+)
+{
+    int res = 0;
+
+    /* Initializing the xmlXPathContextPtr object */
+    *xpathCtx = xmlXPathNewContext(doc);
+    if (*xpathCtx == NULL)
+    {
+        do_log2("Unable to create xpathCtx", LOG_LEVEL_ERROR);
+        return 1;
+    }
+
+    /* Setting the base for the research */
+    if (base != NULL)
+    {
+        res = xmlXPathSetContextNode(base, *xpathCtx);
+        if (res != 0)
+        {
+
+            do_log2("Unable set the context", LOG_LEVEL_ERROR);
+            xmlXPathGetNode_clean(xpathCtx, xpathObj);
+            return 1;
+        }
+    }
+
+    /* Initializing the xmlXPathObjectPtr object */
+    *xpathObj = xmlXPathEvalExpression(xpathExpr, *xpathCtx);
+    if (*xpathObj == NULL && resultRequired == 1)
+    {
+        do_log2("Unable to evaluate xPath expression which is required", LOG_LEVEL_ERROR);
+        xmlXPathGetNode_clean(xpathCtx, xpathObj);
+        return 1;
+    }
+
+    /* OK */
+    return 0;
+}
+
+void xmlXPathGetNode_clean(
+    xmlXPathContextPtr *xpathCtx,
+    xmlXPathObjectPtr *xpathObj)
+{
+    if (xpathObj != NULL && *xpathObj != NULL)
+    {
+        xmlXPathFreeObject(*xpathObj);
+    }
+
+    if (xpathCtx != NULL && *xpathCtx != NULL)
+    {
+        xmlXPathFreeContext(*xpathCtx);
+    }
+}
+
+int xmlXPathGetAttribute(
+    xmlDocPtr doc,      /* The coument to use */
+    char *xpathExpr,    /* The xpath expression to evaluate */
+    xmlNodePtr base,    /* Optionnal: The base of research */
+    int resultRequired, /* Is the result required */
+    char *attribute,    /* The attribute to extract */
+    char **outBuff      /* The output buffer pointer (auto-alloc) */
+)
+{
+    xmlXPathContextPtr xpathCtx = NULL;
+    xmlXPathObjectPtr xpathObj = NULL;
+    int res = 0;
+    char errBuff[2048];
+    unsigned char *dataBuff;
+
+    res = xmlXPathGetNode(&xpathCtx, &xpathObj, doc, xpathExpr, base, resultRequired);
+    if (res != 0)
+    {
+        do_log2("Unable to get node", LOG_LEVEL_ERROR);
+        return res;
+    }
+
+    if (xpathObj->nodesetval->nodeNr != 1)
+    {
+        sprintf(errBuff, "Multiple nodes encountered (%d)", xpathObj->nodesetval->nodeNr);
+        do_log2(errBuff, LOG_LEVEL_ERROR);
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        return 1;
+    }
+
+    if (xpathObj->nodesetval->nodeTab[0] == NULL)
+    {
+        do_log2("xpathObj->nodesetval->noteTab[0] == NULL", LOG_LEVEL_ERROR);
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        return 1;
+    }
+
+    dataBuff = xmlGetProp(xpathObj->nodesetval->nodeTab[0], attribute);
+
+    if (dataBuff == NULL)
+    {
+        sprintf(errBuff, "Attribute not found (%s)", attribute);
+        do_log2(errBuff, LOG_LEVEL_WARNING);
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        return 1;
+    }
+
+    _strMallocCpy(outBuff, dataBuff);
+
+    xmlFree(dataBuff);
+
+    xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+
+    return 0;
+}
+
+int xmlXPathGetValue(
+    xmlDocPtr doc,      /* The coument to use */
+    char *xpathExpr,    /* The xpath expression to evaluate */
+    xmlNodePtr base,    /* Optionnal: The base of research */
+    int resultRequired, /* Is the result required */
+    char **outBuff      /* The output buffer pointer (auto-alloc) */
+)
+{
+    xmlXPathContextPtr xpathCtx = NULL;
+    xmlXPathObjectPtr xpathObj = NULL;
+    int res = 0;
+    char errBuff[2048];
+    unsigned char *dataBuff;
+
+    res = xmlXPathGetNode(&xpathCtx, &xpathObj, doc, xpathExpr, base, resultRequired);
+    if (res != 0)
+    {
+        do_log2("Unable to get node", LOG_LEVEL_ERROR);
+        return res;
+    }
+
+    if (xpathObj->nodesetval->nodeNr != 1)
+    {
+        sprintf(errBuff, "Multiple nodes encountered (%d)", xpathObj->nodesetval->nodeNr);
+        do_log2(errBuff, LOG_LEVEL_ERROR);
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        return 1;
+    }
+
+    if (xpathObj->nodesetval->nodeTab[0] == NULL)
+    {
+        do_log2("xpathObj->nodesetval->noteTab[0] == NULL", LOG_LEVEL_ERROR);
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        return 1;
+    }
+
+    dataBuff = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[0]->children, 1);
+
+    if (dataBuff == NULL)
+    {
+        do_log2("Data is empty", LOG_LEVEL_WARNING);
+        //xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+        //return 1;
+    }
+
+    _strMallocCpy(outBuff, dataBuff);
+
+    xmlFree(dataBuff);
+    xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
 
     return 0;
 }

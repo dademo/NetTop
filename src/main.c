@@ -31,6 +31,24 @@ char rawXML[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
     </action>\
 </message>";
 
+char rawXML2[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+<message>\
+    <action type=\"httpRequest-query\">\
+        <query type=\"POST\">\
+            <path>/toto</path>\
+            <headers>\
+                <Accept>text/html</Accept>\
+                <Accept-Charset>utf-8</Accept-Charset>\
+                <Accept-Language>en-US</Accept-Language>\
+                <User-Agent>Mozilla/5.0 (X11; Linux x86_64…) Gecko/20100101 Firefox/60.0</User-Agent>\
+            </headers>\
+            <post-args>\
+                <arg name=\"toto\">aze</arg>\
+            </post-args>\
+        </query>\
+    </action>\
+</message>";
+
 void dynamicMem();
 
 int main(int argc, char *argv[])
@@ -82,6 +100,20 @@ printf("res: %d\n", res);
       free_xml_master_config(allConfigs + i);
     }
   }
+
+struct xml_master_httpRequestQuery requestQuery;
+
+res = parse_xml_master_httpRequestQuery(&requestQuery, rawXML2);
+
+if (res == 0)
+{
+  printf("%s\n", requestQuery.path);
+
+  free_xml_master_httpRequestQuery(&requestQuery);
+} else {
+  printf("KO\n");
+}
+
 
   //add_log_target("toto/out.log", LOG_ALL);
   add_log_target("out.log", LOG_ALL | LOG_LEVEL_DEBUG);

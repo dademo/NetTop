@@ -23,6 +23,8 @@ static const char *const SQLITE_REAL = "REAL";
 static const char *const SQLITE_BLOB = "BLOB";
 static const char *const SQLITE_NULL = "NULL";
 
+/* Enumerations */
+
 enum SQLITE_DATA_TYPES
 {
     SQLITE_DATA_TYPES_INTEGER,
@@ -40,7 +42,7 @@ enum SQLITE_DATA_TYPES
 /* message.action */
 struct xml_master_config
 {
-    const char *const actionType;
+    const char *actionType;
     const char *configName;
     const char *inConfig;
 };
@@ -66,7 +68,7 @@ struct xml_master_httpRequestQuery_postArgs
 /* message.action.query */
 struct xml_master_httpRequestQuery
 {
-    const char *const actionType;
+    const char *actionType;
     const char *queryType;
     const char *path;
     struct xml_master_httpRequestQuery_headers headers;
@@ -79,7 +81,7 @@ struct xml_master_httpRequestQuery
 /* message.action */
 struct xml_master_sqlQueryError
 {
-    const char *const actionType;
+    const char *actionType;
     const char *query;
     unsigned int code;
     const char *error;
@@ -90,7 +92,7 @@ struct xml_master_sqlQueryError
 /* message.action */
 struct xml_master_sqlQueryModifResult
 {
-    const char *const actionType;
+    const char * actionType;
     const char *query;
     unsigned int changes;
 };
@@ -114,7 +116,7 @@ struct xml_master_sqlQuerySelectResult_row
 /* message.action */
 struct xml_master_sqlQuerySelectResult
 {
-    const char *const actionType;
+    const char * actionType;
     const char *query;
     unsigned int nRows;
     struct xml_master_sqlQuerySelectResult_row *rows;
@@ -127,7 +129,7 @@ struct xml_master_sqlQuerySelectResult
 /* message.action */
 struct xml_slave_configQuery
 {
-    const char *const actionType;
+    const char * actionType;
     unsigned int nConfigQueryName;
     const char **allConfigQueryName;
 };
@@ -143,7 +145,7 @@ struct xml_slave_httpRequestAnswer_headers
 /* message.action.answer */
 struct xml_slave_httpRequestAnswer
 {
-    const char *const actionType;
+    const char * actionType;
     unsigned int code;
     struct xml_slave_httpRequestAnswer_headers headers;
     const char *body;
@@ -154,7 +156,7 @@ struct xml_slave_httpRequestAnswer
 /* message.action */
 struct xml_slave_log
 {
-    const char *const actionType;
+    const char * actionType;
     enum log_level logLevel;
     const char *text;
 };
@@ -163,7 +165,7 @@ struct xml_slave_log
 /** xml_slave_sqlQueryModifQuery **/
 struct xml_slave_sqlQueryModifQuery
 {
-    const char *const actionType;
+    const char * actionType;
     const char *query;
 };
 /** END xml_slave_sqlQueryModifQuery **/
@@ -171,7 +173,7 @@ struct xml_slave_sqlQueryModifQuery
 /** xml_slave_sqlQuerySelectQuery **/
 struct xml_slave_sqlQuerySelectQuery
 {
-    const char *const actionType;
+    const char * actionType;
     const char *query;
 };
 /** END xml_slave_sqlQuerySelectQuery **/
@@ -319,7 +321,7 @@ stringify_xml_slave_sqlQuerySelectQuery(
 /* Master */
 int parse_xml_master_config(
     struct xml_master_config **config,
-    int* nElems,
+    int *nElems,
     const char *const rawXml);
 
 int parse_xml_master_httpRequestQuery(

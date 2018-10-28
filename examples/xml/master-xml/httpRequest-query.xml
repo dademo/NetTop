@@ -10,7 +10,7 @@
                 <User-Agent>Mozilla/5.0 (X11; Linux x86_64…) Gecko/20100101 Firefox/60.0</User-Agent>
             </headers>
             <post-args>
-                <arg name="toto"></arg>
+                <arg name="toto">aze</arg>
             </post-args>
         </query>
     </action>

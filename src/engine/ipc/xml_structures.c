@@ -19,9 +19,10 @@ mkMasterConfig(
 {
     struct xml_master_config config;
 
-    *((const char **)&(config.actionType)) = xml_master_config_str;
+    config.actionType = xml_master_config_str;
 
-    _strMallocCpy(&(config.inConfig), inConfig);
+    _strMallocCpy((char **)&(config.configName), configName);
+    _strMallocCpy((char **)&(config.inConfig), inConfig);
 
     return config;
 }
@@ -35,10 +36,10 @@ mkQueryHeaders(
 {
     struct xml_master_httpRequestQuery_headers headers;
 
-    _strMallocCpy(&(headers.accept), accept);
-    _strMallocCpy(&(headers.accept_charset), accept_charset);
-    _strMallocCpy(&(headers.accept_language), accept_language);
-    _strMallocCpy(&(headers.user_agent), user_agent);
+    _strMallocCpy((char **)&(headers.accept), accept);
+    _strMallocCpy((char **)&(headers.accept_charset), accept_charset);
+    _strMallocCpy((char **)&(headers.accept_language), accept_language);
+    _strMallocCpy((char **)&(headers.user_agent), user_agent);
 
     return headers;
 }
@@ -50,8 +51,8 @@ mkQueryPostArgs(
 {
     struct xml_master_httpRequestQuery_postArgs postArgs;
 
-    _strMallocCpy(&(postArgs.arg_name), arg_name);
-    _strMallocCpy(&(postArgs.arg), arg);
+    _strMallocCpy((char **)&(postArgs.arg_name), arg_name);
+    _strMallocCpy((char **)&(postArgs.arg), arg);
 
     return postArgs;
 }
@@ -67,10 +68,10 @@ mkhttpRequestQuery(
 {
     struct xml_master_httpRequestQuery httpRequestQuery;
 
-    *((const char **)&(httpRequestQuery.actionType)) = xml_master_httpRequestQuery_str;
+    httpRequestQuery.actionType = xml_master_httpRequestQuery_str;
 
-    _strMallocCpy(&(httpRequestQuery.queryType), queryType);
-    _strMallocCpy(&(httpRequestQuery.path), path);
+    _strMallocCpy((char **)&(httpRequestQuery.queryType), queryType);
+    _strMallocCpy((char **)&(httpRequestQuery.path), path);
     httpRequestQuery.headers = mkQueryHeaders(
         accept,
         accept_charset,
@@ -120,11 +121,11 @@ mkSqlQueryError(
 {
     struct xml_master_sqlQueryError sqlQueryError;
 
-    *((const char **)&(sqlQueryError.actionType)) = xml_master_sqlQueryError_str;
+    sqlQueryError.actionType = xml_master_sqlQueryError_str;
 
-    _strMallocCpy(&sqlQueryError.query, query);
+    _strMallocCpy((char **)&sqlQueryError.query, query);
     sqlQueryError.code = code;
-    _strMallocCpy(&sqlQueryError.error, error);
+    _strMallocCpy((char **)&sqlQueryError.error, error);
 
     return sqlQueryError;
 }
@@ -136,9 +137,9 @@ mkSqlQueryModifResult(
 {
     struct xml_master_sqlQueryModifResult sqlQueryModifResult;
 
-    *((const char **)&(sqlQueryModifResult.actionType)) = xml_master_sqlQueryModifResult_str;
+    sqlQueryModifResult.actionType = xml_master_sqlQueryModifResult_str;
 
-    _strMallocCpy(&sqlQueryModifResult.query, query);
+    _strMallocCpy((char **)&sqlQueryModifResult.query, query);
     sqlQueryModifResult.changes = changes;
 
     return sqlQueryModifResult;
@@ -155,8 +156,8 @@ mkSqlQuerySelectResultRowValue(
 
     sqlQuerySelectResultRowValue.columnId = columnId;
     sqlQuerySelectResultRowValue.dataType = dataType;
-    _strMallocCpy(&sqlQuerySelectResultRowValue.colName, colName);
-    _strMallocCpy(&sqlQuerySelectResultRowValue.data, data);
+    _strMallocCpy((char **)&sqlQuerySelectResultRowValue.colName, colName);
+    _strMallocCpy((char **)&sqlQuerySelectResultRowValue.data, data);
 
     return sqlQuerySelectResultRowValue;
 }
@@ -178,9 +179,9 @@ mkSqlQuerySelectResult(
 {
     struct xml_master_sqlQuerySelectResult sqlQuerySelectResult;
 
-    *((const char **)&(sqlQuerySelectResult.actionType)) = xml_master_sqlQuerySelectResult_str;
+    sqlQuerySelectResult.actionType = xml_master_sqlQuerySelectResult_str;
 
-    _strMallocCpy(&sqlQuerySelectResult.query, query);
+    _strMallocCpy((char **)&sqlQuerySelectResult.query, query);
     sqlQuerySelectResult.nRows = 0;
     sqlQuerySelectResult.rows = NULL;
 
@@ -255,7 +256,7 @@ mkConfigQuery()
 {
     struct xml_slave_configQuery configQuery;
 
-    *((const char **)&(configQuery.actionType)) = xml_slave_configQuery_str;
+    configQuery.actionType = xml_slave_configQuery_str;
 
     configQuery.nConfigQueryName = 0;
     configQuery.allConfigQueryName = NULL;
@@ -267,10 +268,10 @@ int addConfigQuery(
     struct xml_slave_configQuery *configQuery,
     const char *configQueryStr)
 {
-    const char **new_allConfigsQueryName = realloc(
+    char **new_allConfigsQueryName = realloc(
         configQuery->allConfigQueryName,
         (configQuery->nConfigQueryName + 1) * sizeof(char *));
-    const char *tmpConfigStr = NULL;
+    char *tmpConfigStr = NULL;
 
     if (new_allConfigsQueryName != NULL)
     {
@@ -280,7 +281,7 @@ int addConfigQuery(
         {
             new_allConfigsQueryName[configQuery->nConfigQueryName + 1] = tmpConfigStr;
 
-            configQuery->allConfigQueryName = new_allConfigsQueryName;
+            configQuery->allConfigQueryName = (const char **)new_allConfigsQueryName;
             configQuery->nConfigQueryName++;
             return 0;
         }
@@ -305,13 +306,13 @@ mkHttpRequestAnswer(
     struct xml_slave_httpRequestAnswer_headers httpRequestAnswerHeader;
     struct xml_slave_httpRequestAnswer httpRequestAnswer;
 
-    *((const char **)&(httpRequestAnswer.actionType)) = xml_slave_httpRequestAnswer_str;
+    httpRequestAnswer.actionType = xml_slave_httpRequestAnswer_str;
 
-    _strMallocCpy(&httpRequestAnswerHeader.content_type, content_type);
-    _strMallocCpy(&httpRequestAnswerHeader.content_language, content_language);
+    _strMallocCpy((char **)&httpRequestAnswerHeader.content_type, content_type);
+    _strMallocCpy((char **)&httpRequestAnswerHeader.content_language, content_language);
     httpRequestAnswer.code = code;
     httpRequestAnswer.headers = httpRequestAnswerHeader;
-    _strMallocCpy(&httpRequestAnswer.body, body);
+    _strMallocCpy((char **)&httpRequestAnswer.body, body);
 
     return httpRequestAnswer;
 }
@@ -322,10 +323,10 @@ struct xml_slave_log mkLog(
 {
     struct xml_slave_log log;
 
-    *((const char **)&(log.actionType)) = xml_slave_log_str;
+    log.actionType = xml_slave_log_str;
 
     log.logLevel = logLevel;
-    _strMallocCpy(&log.text, text);
+    _strMallocCpy((char **)&log.text, text);
 
     return log;
 }
@@ -336,9 +337,9 @@ mkSqlQueryModifyQuery(
 {
     struct xml_slave_sqlQueryModifQuery sqlQueryModifQuery;
 
-    *((const char **)&(sqlQueryModifQuery.actionType)) = xml_slave_sqlQueryModifQuery_str;
+    sqlQueryModifQuery.actionType = xml_slave_sqlQueryModifQuery_str;
 
-    _strMallocCpy(&sqlQueryModifQuery.query, query);
+    _strMallocCpy((char **)&sqlQueryModifQuery.query, query);
 
     return sqlQueryModifQuery;
 }
@@ -349,9 +350,9 @@ mkSqlQuerySelectQuery(
 {
     struct xml_slave_sqlQuerySelectQuery sqlQuerySelectQuery;
 
-    *((const char **)&(sqlQuerySelectQuery.actionType)) = xml_slave_sqlQueryModifQuery_str;
+    sqlQuerySelectQuery.actionType = xml_slave_sqlQueryModifQuery_str;
 
-    _strMallocCpy(&sqlQuerySelectQuery.query, query);
+    _strMallocCpy((char **)&sqlQuerySelectQuery.query, query);
 
     return sqlQuerySelectQuery;
 }
@@ -422,10 +423,10 @@ stringify_xml_slave_sqlQuerySelectQuery(
 /* Master */
 int parse_xml_master_config(
     struct xml_master_config **config,
-    int* nElems,
+    int *nElems,
     const char *const rawXml)
 {
-    const char **tmpBuff = NULL;
+    char **tmpBuff = NULL;
     int res = 0;
     int tabLen = 0;
 
@@ -454,7 +455,7 @@ int parse_xml_master_config(
             xmlDocPtr tmpDoc = xmlReadMemory(tmpBuff[i], strlen(tmpBuff[i]), "in2.xml", NULL, 0);
             xmlNodePtr rootNode = xmlDocGetRootElement(tmpDoc);
 
-            _strMallocCpy(&((*config)[i].configName), rootNode->name);
+            _strMallocCpy((char **)&((*config)[i].configName), rootNode->name);
             (*config)[i].inConfig = tmpBuff[i];
 
             xmlFreeDoc(tmpDoc);
@@ -471,6 +472,34 @@ int parse_xml_master_httpRequestQuery(
     const char *const rawXml)
 {
     xmlDocPtr doc = xmlReadMemory(rawXml, strlen(rawXml), "in.xml", NULL, 0);
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    /* New attributes */
+    char *queryType = NULL;
+    char *path = NULL;
+    char *headers_accept = NULL;
+    char *headers_acceptCharset = NULL;
+    char *headers_acceptLanguage = NULL;
+    char *headers_userAgent = NULL;
+    /* Tmp attributes -> POST */
+    char *postArgs_name = NULL;
+    char *post_args_value = NULL;
+    unsigned char *xmlBuff = NULL;
+    unsigned char *xmlBuff2 = NULL;
+    int res = 0;
+
+    /* Free function */
+    void freeAll()
+    {
+        _FREE(queryType);
+        _FREE(path);
+        _FREE(headers_accept);
+        _FREE(headers_acceptCharset);
+        _FREE(headers_acceptLanguage);
+        _FREE(headers_userAgent);
+        xmlFreeDoc(doc);
+    }
+
     if (doc == NULL)
     {
         do_log2("Unable to open document", LOG_LEVEL_ERROR);
@@ -485,8 +514,59 @@ int parse_xml_master_httpRequestQuery(
     }
 
     /* Parsing the file */
+    /* message.action.query */
+    _RES("queryType", xmlXPathGetAttribute(doc, "/message/action/query", NULL, 1, "type", &queryType));
+    _RES("path", xmlXPathGetValue(doc, "/message/action/query/path", NULL, 1, &path));
+    _RES("headers_accept", xmlXPathGetValue(doc, "/message/action/query/headers/Accept", NULL, 1, &headers_accept));
+    _RES("headers_acceptCharset", xmlXPathGetValue(doc, "/message/action/query/headers/Accept-Charset", NULL, 1, &headers_acceptCharset));
+    _RES("headers_acceptLanguage", xmlXPathGetValue(doc, "/message/action/query/headers/Accept-Language", NULL, 1, &headers_acceptLanguage));
+    _RES("headers_userAgent", xmlXPathGetValue(doc, "/message/action/query/headers/User-Agent", NULL, 1, &headers_userAgent));
 
-    xmlFreeDoc(doc);
+    /* Creating */
+    *httpRequestQuery = mkhttpRequestQuery(
+        queryType,
+        path,
+        headers_accept,
+        headers_acceptCharset,
+        headers_acceptLanguage,
+        headers_userAgent);
+
+    if (_STRCMP("POST", queryType))
+    {
+        /* Processing POST values */
+        res = xmlXPathGetNode(&xpathCtx, &xpathObj, doc, "/message/action/query/post-args/*", NULL, 0);
+        if (res != 0)
+        {
+            do_log2("Unable to get node", LOG_LEVEL_ERROR);
+            freeAll();
+            return res;
+        }
+
+        for (int i = 0; i < xpathObj->nodesetval->nodeNr; i++)
+        {
+            xmlBuff = xmlGetProp(xpathObj->nodesetval->nodeTab[i], "name");
+            xmlBuff2 = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[i]->children, 1);
+
+            if (mkhttpRequestQuery_addPostArg(httpRequestQuery, xmlBuff, xmlBuff2) != 0)
+            {
+                do_log2("Unable to add post arg", LOG_LEVEL_ERROR);
+                xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+
+                _XMLFREE(xmlBuff);
+                _XMLFREE(xmlBuff2);
+
+                freeAll();
+                free_xml_master_httpRequestQuery(httpRequestQuery);
+                return 1;
+            }
+            _XMLFREE(xmlBuff);
+            _XMLFREE(xmlBuff2);
+        }
+        xmlXPathGetNode_clean(&xpathCtx, &xpathObj);
+    }
+
+    freeAll();
+    return 0;
 }
 
 int parse_xml_master_sqlQueryError(
